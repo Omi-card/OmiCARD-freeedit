@@ -27,9 +27,9 @@
         .controls { 
             background: #2d2d2d; 
             padding: 20px; 
-            padding-bottom: 120px; 
+            padding-bottom: 150px; 
             border-radius: 10px; 
-            width: 420px; 
+            width: 440px; 
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
@@ -92,14 +92,25 @@
             <div class="layer-body">
                 <label class="file-upload-label">📸 上傳照片 <input type="file" id="uploadUserImg" accept="image/*" style="display:none"></label>
                 
+                <div class="block-label">字體與樣式</div>
                 <select id="fontSelect" onchange="drawCard()">
-                    <optgroup label="中日文兼容"><option value="'Noto Sans TC'">標準黑體</option><option value="'Noto Serif TC'">經典宋體</option><option value="'Dela Gothic One'">超粗像素</option><option value="'Zhi Mang Xing'">狂放書法</option><option value="'Klee One'">清爽手寫</option><option value="'DotGothic16'">8-bit 點陣</option></optgroup>
-                    <optgroup label="韓文"><option value="'Black Han Sans'">韓語粗體</option><option value="'Nanum Pen Script'">清新筆跡</option></optgroup>
-                    <optgroup label="英文/拉丁"><option value="'UnifrakturMaguntia'">中古歌德</option><option value="'Cinzel'">羅馬石刻</option><option value="'Orbitron'">未來科幻</option></optgroup>
+                    <optgroup label="中日文兼容"><option value="'Noto Sans TC'">標準黑體</option><option value="'Noto Serif TC'">經典宋體</option><option value="'Dela Gothic One'">超粗像素</option><option value="'Zhi Mang Xing'">狂放書法</option><option value="'Klee One'">清爽手寫</option><option value="'DotGothic16'">點陣像素</option></optgroup>
+                    <optgroup label="韓文"><option value="'Black Han Sans'">韓語粗體</option><option value="'Do Hyeon'">幾何韓體</option><option value="'Nanum Pen Script'">清新筆跡</option></optgroup>
+                    <optgroup label="英文"><option value="'UnifrakturMaguntia'">中古歌德</option><option value="'Cinzel'">羅馬石刻</option><option value="'Orbitron'">未來科幻</option><option value="'Permanent Marker'">手繪簽字筆</option></optgroup>
                 </select>
 
-                <div class="flex-label" style="margin-top:10px;">名稱 <input type="text" id="cardName" value="卡牌名稱" oninput="drawCard()" style="width:75%"></div>
-                <div class="flex-label">種族 <input type="text" id="cardRace" value="種族名稱" oninput="drawCard()" style="width:75%"></div>
+                <div class="flex-label" style="margin-top:5px; background:#222; padding:5px; border-radius:4px;">
+                    <label><input type="checkbox" id="fontBold" checked onchange="drawCard()"> <b>粗</b></label>
+                    <label><input type="checkbox" id="fontItalic" onchange="drawCard()"> <i>斜</i></label>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span style="font-size:0.8em;">字距</span>
+                        <input type="range" id="fontSpacing" min="-10" max="30" value="0" step="1" oninput="sync(this.value, 'n_fontSpacing')" style="width:50px;">
+                        <input type="number" id="n_fontSpacing" value="0" step="1" oninput="sync(this.value, 'fontSpacing')" style="width:45px;">
+                    </div>
+                </div>
+
+                <div class="flex-label" style="margin-top:10px;">名稱 <input type="text" id="cardName" value="歐米女神" oninput="drawCard()" style="width:75%"></div>
+                <div class="flex-label">種族 <input type="text" id="cardRace" value="OLYMPUS / 希臘神話" oninput="drawCard()" style="width:75%"></div>
                 
                 <div class="block-label">等級與顏色</div>
                 <div style="display:flex; gap:5px;">
@@ -111,16 +122,28 @@
             </div>
         </div>
         
-        <details>
-            <summary>📐 進階：位置與縮放 (精準控制)</summary>
+        <details open>
+            <summary>📐 進階：位置與縮放 (精準版)</summary>
             <div class="layer-body" style="font-size:0.85em;">
-                <div class="flex-label">照片縮放 <input type="range" id="userScale" min="0.01" max="5.0" step="0.01" value="1.0" oninput="sync(this.value, 'n_userScale')"><input type="number" id="n_userScale" value="1.0" step="0.01" oninput="sync(this.value, 'userScale')"></div>
-                <div class="flex-label">照片 X <input type="range" id="userX" min="-300" max="900" value="325" oninput="sync(this.value, 'n_userX')"><input type="number" id="n_userX" value="325" oninput="sync(this.value, 'userX')"></div>
-                <div class="flex-label">照片 Y <input type="range" id="userY" min="-300" max="1200" value="354" oninput="sync(this.value, 'n_userY')"><input type="number" id="n_userY" value="354" oninput="sync(this.value, 'userY')"></div>
-                <hr style="border:0; border-top:1px solid #444; margin:8px 0;">
-                <div class="flex-label">標題 Y <input type="range" id="titleY" min="0" max="200" value="56" oninput="sync(this.value, 'n_titleY')"><input type="number" id="n_titleY" value="56" oninput="sync(this.value, 'titleY')"></div>
-                <div class="flex-label">種族 X <input type="range" id="raceX" min="0" max="650" value="177" oninput="sync(this.value, 'n_raceX')"><input type="number" id="n_raceX" value="177" oninput="sync(this.value, 'raceX')"></div>
-                <div class="flex-label">種族 Y <input type="range" id="raceY" min="400" max="800" value="640" oninput="sync(this.value, 'n_raceY')"><input type="number" id="n_raceY" value="640" oninput="sync(this.value, 'raceY')"></div>
+                <h4 style="margin:5px 0; color:#0f0;">照片調整</h4>
+                <div class="flex-label">縮放 <input type="range" id="userScale" min="0.01" max="5.0" step="0.01" value="1.0" oninput="sync(this.value, 'n_userScale')"><input type="number" id="n_userScale" value="1.0" step="0.01" oninput="sync(this.value, 'userScale')"></div>
+                <div class="flex-label">X <input type="range" id="userX" min="-300" max="900" value="325" oninput="sync(this.value, 'n_userX')"><input type="number" id="n_userX" value="325" oninput="sync(this.value, 'userX')"></div>
+                <div class="flex-label">Y <input type="range" id="userY" min="-300" max="1200" value="354" oninput="sync(this.value, 'n_userY')"><input type="number" id="n_userY" value="354" oninput="sync(this.value, 'userY')"></div>
+                
+                <h4 style="margin:10px 0 5px 0; color:#aaa;">標題控制</h4>
+                <div class="flex-label">X <input type="range" id="titleX" min="0" max="650" value="325" oninput="sync(this.value, 'n_titleX')"><input type="number" id="n_titleX" value="325" oninput="sync(this.value, 'titleX')"></div>
+                <div class="flex-label">Y <input type="range" id="titleY" min="0" max="200" value="70" oninput="sync(this.value, 'n_titleY')"><input type="number" id="n_titleY" value="70" oninput="sync(this.value, 'titleY')"></div>
+                <div class="flex-label">大小 <input type="range" id="titleSize" min="10" max="100" value="42" oninput="sync(this.value, 'n_titleSize')"><input type="number" id="n_titleSize" value="42" oninput="sync(this.value, 'titleSize')"></div>
+
+                <h4 style="margin:10px 0 5px 0; color:#aaa;">種族控制</h4>
+                <div class="flex-label">X <input type="range" id="raceX" min="0" max="650" value="177" oninput="sync(this.value, 'n_raceX')"><input type="number" id="n_raceX" value="177" oninput="sync(this.value, 'raceX')"></div>
+                <div class="flex-label">Y <input type="range" id="raceY" min="400" max="900" value="652" oninput="sync(this.value, 'n_raceY')"><input type="number" id="n_raceY" value="652" oninput="sync(this.value, 'raceY')"></div>
+                <div class="flex-label">大小 <input type="range" id="raceSize" min="10" max="80" value="32" oninput="sync(this.value, 'n_raceSize')"><input type="number" id="n_raceSize" value="32" oninput="sync(this.value, 'raceSize')"></div>
+
+                <h4 style="margin:10px 0 5px 0; color:#aaa;">說明文控制</h4>
+                <div class="flex-label">X <input type="range" id="descX" min="0" max="650" value="85" oninput="sync(this.value, 'n_descX')"><input type="number" id="n_descX" value="85" oninput="sync(this.value, 'descX')"></div>
+                <div class="flex-label">Y <input type="range" id="descY" min="500" max="950" value="700" oninput="sync(this.value, 'n_descY')"><input type="number" id="n_descY" value="700" oninput="sync(this.value, 'descY')"></div>
+                <div class="flex-label">寬度 <input type="range" id="descW" min="100" max="600" value="480" oninput="sync(this.value, 'n_descW')"><input type="number" id="n_descW" value="480" oninput="sync(this.value, 'descW')"></div>
             </div>
         </details>
 
@@ -190,9 +213,9 @@
                 assets.user.img.onload = () => {
                     assets.user.loaded = true;
                     const s = Math.max(510 / assets.user.img.width, 460 / assets.user.img.height);
-                    sync(s.toFixed(2), 'n_userScale'); sync(s.toFixed(2), 'userScale');
-                    sync(325, 'n_userX'); sync(325, 'userX');
-                    sync(354, 'n_userY'); sync(354, 'userY');
+                    sync(s.toFixed(2), 'n_userScale'); 
+                    sync(325, 'n_userX'); 
+                    sync(354, 'n_userY'); 
                 };
             };
             reader.readAsDataURL(f);
@@ -200,7 +223,16 @@
 
         function loadRank() { assets.rank.img.src = document.getElementById('cardRankSelect').value; assets.rank.img.onload = drawCard; }
         function loadEffect() { assets.effect.img.src = document.getElementById('effectSelect').value; assets.effect.img.onload = drawCard; }
-        function sync(val, targetId) { document.getElementById(targetId).value = val; if(targetId.startsWith('n_')) document.getElementById(targetId.substring(2)).value=val; drawCard(); }
+
+        function sync(val, targetId) { 
+            document.getElementById(targetId).value = val; 
+            if(targetId.startsWith('n_')) {
+                document.getElementById(targetId.substring(2)).value = val;
+            } else {
+                document.getElementById('n_' + targetId).value = val;
+            }
+            drawCard(); 
+        }
 
         function drawTintedImage(img, color, isEnabled) {
             if (!isEnabled) { ctx.drawImage(img, 0, 0, CW, CH); return; }
@@ -214,52 +246,86 @@
 
         function drawCard() {
             ctx.clearRect(0, 0, CW, CH);
-            ctx.fillStyle = document.getElementById('paperColor').value; ctx.fillRect(0, 0, CW, CH);
+            ctx.fillStyle = document.getElementById('paperColor').value; 
+            ctx.fillRect(0, 0, CW, CH);
 
             if (assets.user.loaded) {
-                const s = parseFloat(document.getElementById('userScale').value);
+                const s = parseFloat(document.getElementById('n_userScale').value);
                 const w = assets.user.img.width * s, h = assets.user.img.height * s;
-                ctx.drawImage(assets.user.img, parseFloat(document.getElementById('userX').value) - w/2, parseFloat(document.getElementById('userY').value) - h/2, w, h);
+                const x = parseFloat(document.getElementById('n_userX').value);
+                const y = parseFloat(document.getElementById('n_userY').value);
+                ctx.drawImage(assets.user.img, x - w/2, y - h/2, w, h);
             }
 
             if (assets.mask.img.complete) drawTintedImage(assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
             if (assets.texture.img.complete) drawTintedImage(assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
             if (assets.deco.img.complete) drawTintedImage(assets.deco.img, document.getElementById('tintColorD').value, document.getElementById('tintEnableD').checked);
-            if (assets.base.img.complete) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(assets.base.img, 0, 0, CW, CH); ctx.restore(); }
+            if (assets.base.img.complete) { 
+                ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(assets.base.img, 0, 0, CW, CH); ctx.restore(); 
+            }
 
             if (assets.effect.img.complete) {
                 ctx.save();
-                ctx.globalAlpha = document.getElementById('effectOpacity').value;
+                ctx.globalAlpha = document.getElementById('n_effectOpacity').value;
                 ctx.globalCompositeOperation = document.getElementById('effectBlend').value;
                 ctx.drawImage(assets.effect.img, 0, 0, CW, CH);
                 ctx.restore();
             }
 
             const font = document.getElementById('fontSelect').value;
+            const isBold = document.getElementById('fontBold').checked ? 'bold ' : '';
+            const isItalic = document.getElementById('fontItalic').checked ? 'italic ' : '';
+            const spacing = document.getElementById('n_fontSpacing').value;
+            
+            ctx.letterSpacing = spacing + "px";
             ctx.fillStyle = document.getElementById('textColor').value;
             ctx.textAlign = "center";
-            ctx.font = `bold 42px ${font}`;
-            ctx.fillText(document.getElementById('cardName').value, 325, parseFloat(document.getElementById('n_titleY').value));
-            ctx.font = `bold 32px ${font}`;
-            ctx.fillText(document.getElementById('cardRace').value, parseFloat(document.getElementById('n_raceX').value), parseFloat(document.getElementById('n_raceY').value));
+            ctx.textBaseline = "middle";
+
+            // 標題繪製
+            const tY = parseFloat(document.getElementById('n_titleY').value);
+            const tX = parseFloat(document.getElementById('n_titleX').value);
+            const tS = parseFloat(document.getElementById('n_titleSize').value);
+            ctx.font = `${isBold}${isItalic}${tS}px ${font}`;
+            ctx.fillText(document.getElementById('cardName').value, tX, tY);
+
+            // 種族繪製
+            const rY = parseFloat(document.getElementById('n_raceY').value);
+            const rX = parseFloat(document.getElementById('n_raceX').value);
+            const rS = parseFloat(document.getElementById('n_raceSize').value);
+            ctx.font = `${isBold}${isItalic}${rS}px ${font}`;
+            ctx.fillText(document.getElementById('cardRace').value, rX, rY);
 
             if (assets.rank.img.complete) ctx.drawImage(assets.rank.img, 0, 0, CW, CH);
 
-            ctx.textAlign = "left"; ctx.font = `26px ${font}`;
-            wrapText(document.getElementById('cardDesc').value, 85, 700, 480, 38);
+            // 說明文繪製
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            const dX = parseFloat(document.getElementById('n_descX').value);
+            const dY = parseFloat(document.getElementById('n_descY').value);
+            const dW = parseFloat(document.getElementById('n_descW').value);
+            ctx.font = `${isBold}${isItalic}26px ${font}`;
+            wrapText(document.getElementById('cardDesc').value, dX, dY, dW, 38);
         }
 
         function wrapText(text, x, y, maxW, lineH) {
             let words = text.split(''); let line = '';
             for (let n = 0; n < words.length; n++) {
                 let testLine = line + words[n];
-                if (ctx.measureText(testLine).width > maxW) { ctx.fillText(line, x, y); line = words[n]; y += lineH; } else { line = testLine; }
+                if (ctx.measureText(testLine).width > maxW && n > 0) { 
+                    ctx.fillText(line, x, y); line = words[n]; y += lineH; 
+                } else { line = testLine; }
             } ctx.fillText(line, x, y);
         }
         
-        function downloadCard() { const a = document.createElement('a'); a.download = document.getElementById('cardName').value + ".png"; a.href = canvas.toDataURL(); a.click(); }
+        function downloadCard() {
+            const a = document.createElement('a'); 
+            a.download = document.getElementById('cardName').value + ".png"; 
+            a.href = canvas.toDataURL(); 
+            a.click();
+        }
+
         window.onload = preloadAssets;
     </script>
 </body>
 </html>
-
