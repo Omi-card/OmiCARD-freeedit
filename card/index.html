@@ -42,9 +42,14 @@
         summary:after { content: " ▼"; font-size: 0.8em; }
         details[open] summary:after { content: " ▲"; }
         .details-content { padding: 10px; border-top: 1px solid #444; margin-top: 5px; }
+        
+        /* ★★★ 新增：數值輸入框樣式 ★★★ */
         input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
-
-        .val-display { font-size: 0.8em; color: #0f0; font-family: monospace; min-width: 30px; text-align: right; }
+        input[type="number"] { 
+            background: #111; color: #0f0; border: 1px solid #444; 
+            border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; 
+        }
+        input[type="number"]:focus { border-color: #0f0; outline: none; }
 
         .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; }
         canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
@@ -93,6 +98,35 @@
             </div>
         </div>
 
+        <div class="layer-card" style="border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.2);">
+            <div class="layer-header" style="background:#444;"><span>4. 卡面特效</span></div>
+            <div class="layer-body">
+                <div class="block-label">選擇特效</div>
+                <select id="effectSelect" onchange="loadEffect()" style="width:100%">
+                    <option value="effect_none.png">無特效</option>
+                    <option value="effect_1.png">特效 1</option>
+                    <option value="effect_2.png">特效 2</option>
+                    <option value="effect_3.png">特效 3</option>
+                </select>
+
+                <div class="flex-label" style="margin-top:10px;">混合模式
+                    <select id="effectBlend" onchange="drawCard()" style="width:50%">
+                        <option value="overlay">疊加</option>
+                        <option value="screen">濾色</option>
+                        <option value="color-dodge">加亮</option>
+                        <option value="multiply">色彩增值</option>
+                        <option value="source-over">正常覆蓋</option>
+                    </select>
+                </div>
+                
+                <div class="flex-label" style="margin-top:10px;">
+                    透明度 
+                    <input type="range" id="effectOpacity" min="0" max="1" step="0.1" value="0.5" oninput="sync(this.value, 'n_effectOpacity')" style="width:40%">
+                    <input type="number" id="n_effectOpacity" value="0.5" step="0.1" min="0" max="1" oninput="sync(this.value, 'effectOpacity')">
+                </div>
+            </div>
+        </div>
+
         <div class="layer-card" style="border-color: #fff; margin-top:15px;">
             <div class="layer-header">內容設定</div>
             <div class="layer-body">
@@ -104,18 +138,18 @@
                 <div class="flex-label" style="margin-top:10px;">字體
                     <select id="fontSelect" onchange="drawCard()" style="width:60%">
                         <optgroup label="經典字體">
-                            <option value="Microsoft JhengHei">微軟正黑體 (預設)</option>
-                            <option value="DFKai-SB, BiaoKai">標楷體 (僅電腦)</option>
+                            <option value="Microsoft JhengHei">微軟正黑體</option>
+                            <option value="DFKai-SB, BiaoKai">標楷體</option>
                         </optgroup>
-                        <optgroup label="網路字體 (手機可用)">
-                            <option value="'Noto Sans TC', sans-serif">思源黑體</option>
-                            <option value="'Noto Serif TC', serif">思源宋體</option>
-                            <option value="'Klee One', cursive">克利體</option>
-                            <option value="'Ma Shan Zheng', cursive">馬善政毛筆</option>
-                            <option value="'Yusei Magic', sans-serif">油性筆體</option>
-                            <option value="'Hachi Maru Pop', cursive">波波體</option>
-                            <option value="'RocknRoll One', sans-serif">搖滾體</option>
-                            <option value="'DotGothic16', sans-serif">點陣像素</option>
+                        <optgroup label="網路字體">
+                            <option value="'Noto Sans TC'">思源黑體</option>
+                            <option value="'Noto Serif TC'">思源宋體</option>
+                            <option value="'Klee One'">克利體</option>
+                            <option value="'Ma Shan Zheng'">馬善政毛筆</option>
+                            <option value="'Yusei Magic'">油性筆體</option>
+                            <option value="'Hachi Maru Pop'">波波體</option>
+                            <option value="'RocknRoll One'">搖滾體</option>
+                            <option value="'DotGothic16'">點陣像素</option>
                         </optgroup>
                     </select>
                 </div>
@@ -131,13 +165,12 @@
                     </div>
                     <div style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:5px;">
                         <span style="font-size:0.8em;">字距</span>
-                        <input type="range" id="fontSpacing" min="-10" max="30" value="0" step="1" oninput="drawCard()" style="width:60px;">
-                        <span id="v_fontSpacing" class="val-display" style="width:20px;">0</span>
+                        <input type="range" id="fontSpacing" min="-10" max="30" value="0" step="1" oninput="sync(this.value, 'n_fontSpacing')" style="width:40px;">
+                        <input type="number" id="n_fontSpacing" value="0" step="1" oninput="sync(this.value, 'fontSpacing')" style="width:50px;">
                     </div>
                 </div>
 
                 <div class="flex-label" style="margin-top:10px;">名稱 <input type="text" id="cardName" value="智慧女神" oninput="drawCard()" style="width:70%"></div>
-                
                 <div class="flex-label">種族 <input type="text" id="cardRace" value="希臘神話" oninput="drawCard()" style="width:70%"></div>
                 
                 <div style="display:flex; gap:5px; margin-top:5px;">
@@ -177,36 +210,46 @@
         </div>
         
         <details>
-            <summary>📐 進階：位置與大小調整 (附數值)</summary>
+            <summary>📐 進階：位置與大小調整 (精準版)</summary>
             <div class="details-content">
                 
                 <h4 style="margin-top:0; color:#0f0;">主角照片調整</h4>
-                <div class="flex-label">縮放 <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="drawCard()" style="width:60%"> <span id="v_userScale" class="val-display">1.0</span></div>
+                <div class="flex-label">
+                    縮放 
+                    <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="sync(this.value, 'n_userScale')" style="width:50%"> 
+                    <input type="number" id="n_userScale" value="1.0" step="0.01" oninput="sync(this.value, 'userScale')">
+                </div>
                 <div style="display:flex; gap:5px;">
-                    <div class="flex-label" style="flex:1">X <input type="range" id="userX" min="-300" max="900" value="325" oninput="drawCard()"> <span id="v_userX" class="val-display">325</span></div>
-                    <div class="flex-label" style="flex:1">Y <input type="range" id="userY" min="-300" max="1200" value="450" oninput="drawCard()"> <span id="v_userY" class="val-display">450</span></div>
+                    <div class="flex-label" style="flex:1">
+                        X <input type="range" id="userX" min="-300" max="900" value="325" oninput="sync(this.value, 'n_userX')"> 
+                        <input type="number" id="n_userX" value="325" oninput="sync(this.value, 'userX')">
+                    </div>
+                    <div class="flex-label" style="flex:1">
+                        Y <input type="range" id="userY" min="-300" max="1200" value="450" oninput="sync(this.value, 'n_userY')"> 
+                        <input type="number" id="n_userY" value="450" oninput="sync(this.value, 'userY')">
+                    </div>
                 </div>
 
                 <h4 style="margin-top:15px; color:#aaa;">標題位置</h4>
                 <div style="display:flex; gap:5px;">
-                    <span style="font-size:0.8em">X</span> <input type="range" id="titleX" min="0" max="650" value="325" oninput="drawCard()"> <span id="v_titleX" class="val-display">325</span>
-                    <span style="font-size:0.8em">Y</span> <input type="range" id="titleY" min="0" max="200" value="75" oninput="drawCard()"> <span id="v_titleY" class="val-display">75</span>
+                    <div class="flex-label" style="flex:1">X <input type="range" id="titleX" min="0" max="650" value="325" oninput="sync(this.value, 'n_titleX')"><input type="number" id="n_titleX" value="325" oninput="sync(this.value, 'titleX')"></div>
+                    <div class="flex-label" style="flex:1">Y <input type="range" id="titleY" min="0" max="200" value="75" oninput="sync(this.value, 'n_titleY')"><input type="number" id="n_titleY" value="75" oninput="sync(this.value, 'titleY')"></div>
                 </div>
-                <div class="flex-label">大小 <input type="range" id="titleSize" min="20" max="80" value="42" oninput="drawCard()" style="width:60%"> <span id="v_titleSize" class="val-display">42</span></div>
+                <div class="flex-label">大小 <input type="range" id="titleSize" min="20" max="80" value="42" oninput="sync(this.value, 'n_titleSize')" style="width:50%"><input type="number" id="n_titleSize" value="42" oninput="sync(this.value, 'titleSize')"></div>
                 
                 <h4 style="margin-top:10px; color:#aaa;">種族位置</h4>
                 <div style="display:flex; gap:5px;">
-                    <span style="font-size:0.8em">X</span> <input type="range" id="raceX" min="0" max="650" value="165" oninput="drawCard()"> <span id="v_raceX" class="val-display">165</span>
-                    <span style="font-size:0.8em">Y</span> <input type="range" id="raceY" min="400" max="800" value="615" oninput="drawCard()"> <span id="v_raceY" class="val-display">615</span>
+                    <div class="flex-label" style="flex:1">X <input type="range" id="raceX" min="0" max="650" value="165" oninput="sync(this.value, 'n_raceX')"><input type="number" id="n_raceX" value="165" oninput="sync(this.value, 'raceX')"></div>
+                    <div class="flex-label" style="flex:1">Y <input type="range" id="raceY" min="400" max="800" value="615" oninput="sync(this.value, 'n_raceY')"><input type="number" id="n_raceY" value="615" oninput="sync(this.value, 'raceY')"></div>
                 </div>
-                <div class="flex-label">大小 <input type="range" id="raceSize" min="16" max="50" value="32" oninput="drawCard()" style="width:60%"> <span id="v_raceSize" class="val-display">32</span></div>
+                <div class="flex-label">大小 <input type="range" id="raceSize" min="16" max="50" value="32" oninput="sync(this.value, 'n_raceSize')" style="width:50%"><input type="number" id="n_raceSize" value="32" oninput="sync(this.value, 'raceSize')"></div>
 
                 <h4 style="margin-top:10px; color:#aaa;">說明文位置</h4>
                 <div style="display:flex; gap:5px;">
-                    <span style="font-size:0.8em">X</span> <input type="range" id="descX" min="0" max="200" value="85" oninput="drawCard()"> <span id="v_descX" class="val-display">85</span>
-                    <span style="font-size:0.8em">Y</span> <input type="range" id="descY" min="500" max="900" value="700" oninput="drawCard()"> <span id="v_descY" class="val-display">700</span>
+                    <div class="flex-label" style="flex:1">X <input type="range" id="descX" min="0" max="200" value="85" oninput="sync(this.value, 'n_descX')"><input type="number" id="n_descX" value="85" oninput="sync(this.value, 'descX')"></div>
+                    <div class="flex-label" style="flex:1">Y <input type="range" id="descY" min="500" max="900" value="700" oninput="sync(this.value, 'n_descY')"><input type="number" id="n_descY" value="700" oninput="sync(this.value, 'descY')"></div>
                 </div>
-                <div class="flex-label">寬度 <input type="range" id="descW" min="200" max="600" value="480" oninput="drawCard()" style="width:60%"> <span id="v_descW" class="val-display">480</span></div>
+                <div class="flex-label">寬度 <input type="range" id="descW" min="200" max="600" value="480" oninput="sync(this.value, 'n_descW')" style="width:50%"><input type="number" id="n_descW" value="480" oninput="sync(this.value, 'descW')"></div>
             </div>
         </details>
 
@@ -228,13 +271,14 @@
             mask: { src: 'layer_b.png',    img: new Image(), loaded: false },
             texture: { src: 'layer_c.png', img: new Image(), loaded: false },
             deco: { src: 'layer_d.png',    img: new Image(), loaded: false },
+            effect: { src: 'effect_none.png', img: new Image(), loaded: false },
             rank: { src: 'rank_3.png',     img: new Image(), loaded: false }, 
             user: { src: null,             img: new Image(), loaded: false }
         };
 
         function preloadAssets() {
             let loadedCount = 0;
-            const keys = ['base', 'mask', 'texture', 'deco', 'rank'];
+            const keys = ['base', 'mask', 'texture', 'deco', 'rank', 'effect'];
             keys.forEach(key => {
                 if (assets[key].src) {
                     assets[key].img.crossOrigin = "Anonymous";
@@ -248,14 +292,17 @@
                             setTimeout(drawCard, 500);
                         }
                     };
-                    assets[key].img.onerror = () => { console.warn(`找不到圖片: ${assets[key].src}`); };
+                    assets[key].img.onerror = () => { 
+                        console.warn(`找不到圖片: ${assets[key].src}`);
+                        if(key === 'effect') assets[key].loaded = false; 
+                        loadedCount++; 
+                        if(loadedCount >= keys.length) setTimeout(drawCard, 500);
+                    };
                 }
             });
         }
 
-        document.fonts.ready.then(function () {
-            drawCard();
-        });
+        document.fonts.ready.then(function () { drawCard(); });
 
         document.getElementById('uploadUserImg').addEventListener('change', (e) => {
             const f = e.target.files[0];
@@ -263,10 +310,7 @@
             const reader = new FileReader();
             reader.onload = (ev) => {
                 assets.user.img.src = ev.target.result;
-                assets.user.img.onload = () => {
-                    assets.user.loaded = true;
-                    drawCard();
-                };
+                assets.user.img.onload = () => { assets.user.loaded = true; drawCard(); };
             };
             reader.readAsDataURL(f);
         });
@@ -276,6 +320,14 @@
             assets.rank.loaded = false;
             assets.rank.img.src = val; 
             assets.rank.img.onload = () => { assets.rank.loaded = true; drawCard(); };
+        }
+        
+        function loadEffect() {
+            const val = document.getElementById('effectSelect').value;
+            assets.effect.loaded = false;
+            assets.effect.img.src = val;
+            assets.effect.img.onload = () => { assets.effect.loaded = true; drawCard(); };
+            assets.effect.img.onerror = () => { assets.effect.loaded = false; drawCard(); };
         }
 
         function drawTintedImage(targetCtx, img, color, isEnabled, x=0, y=0, w=CW, h=CH) {
@@ -288,9 +340,13 @@
             targetCtx.drawImage(tCv, x, y, w, h);
         }
 
-        function updateVal(id, val) {
-            const el = document.getElementById('v_' + id);
-            if(el) el.textContent = val;
+        // ★★★ 核心同步功能：拉桿與輸入框互相更新 ★★★
+        function sync(val, targetId) {
+            const el = document.getElementById(targetId);
+            if(el) {
+                el.value = val;
+                drawCard(); // 數值改變就重畫
+            }
         }
 
         function drawCard() {
@@ -298,61 +354,51 @@
             ctx.fillStyle = document.getElementById('paperColor').value; 
             ctx.fillRect(0, 0, CW, CH);
 
-            const userScale = parseFloat(document.getElementById('userScale').value); updateVal('userScale', userScale);
-            const userX = parseFloat(document.getElementById('userX').value); updateVal('userX', userX);
-            const userY = parseFloat(document.getElementById('userY').value); updateVal('userY', userY);
+            const userScale = parseFloat(document.getElementById('userScale').value);
+            const userX = parseFloat(document.getElementById('userX').value);
+            const userY = parseFloat(document.getElementById('userY').value);
             
-            const titleX = parseInt(document.getElementById('titleX').value); updateVal('titleX', titleX);
-            const titleY = parseInt(document.getElementById('titleY').value); updateVal('titleY', titleY);
-            const titleSize = parseInt(document.getElementById('titleSize').value); updateVal('titleSize', titleSize);
+            const titleX = parseInt(document.getElementById('titleX').value);
+            const titleY = parseInt(document.getElementById('titleY').value);
+            const titleSize = parseInt(document.getElementById('titleSize').value);
             
-            const raceX = parseInt(document.getElementById('raceX').value); updateVal('raceX', raceX);
-            const raceY = parseInt(document.getElementById('raceY').value); updateVal('raceY', raceY);
-            const raceSize = parseInt(document.getElementById('raceSize').value); updateVal('raceSize', raceSize);
+            const raceX = parseInt(document.getElementById('raceX').value);
+            const raceY = parseInt(document.getElementById('raceY').value);
+            const raceSize = parseInt(document.getElementById('raceSize').value);
             
-            const descX = parseInt(document.getElementById('descX').value); updateVal('descX', descX);
-            const descY = parseInt(document.getElementById('descY').value); updateVal('descY', descY);
-            const descW = parseInt(document.getElementById('descW').value); updateVal('descW', descW);
+            const descX = parseInt(document.getElementById('descX').value);
+            const descY = parseInt(document.getElementById('descY').value);
+            const descW = parseInt(document.getElementById('descW').value);
 
-            const fontSpacing = document.getElementById('fontSpacing').value; updateVal('fontSpacing', fontSpacing);
+            const fontSpacing = document.getElementById('fontSpacing').value;
 
+            // 1. 畫主角
             if (assets.user.loaded) {
                 const baseScale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
                 const finalScale = baseScale * userScale;
                 const w = assets.user.img.width * finalScale; 
                 const h = assets.user.img.height * finalScale;
-                
                 ctx.drawImage(assets.user.img, userX - w/2, userY - h/2, w, h);
             } else {
                 ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
             }
 
-            if (assets.mask.loaded) {
-                drawTintedImage(ctx, assets.mask.img, 
-                    document.getElementById('tintColorB').value, 
-                    document.getElementById('tintEnableB').checked);
-            }
-            if (assets.texture.loaded) {
-                drawTintedImage(ctx, assets.texture.img, 
-                    document.getElementById('tintColorC').value, 
-                    document.getElementById('tintEnableC').checked);
-            }
-            if (assets.deco.loaded) {
-                drawTintedImage(ctx, assets.deco.img, 
-                    document.getElementById('tintColorD').value, 
-                    document.getElementById('tintEnableD').checked);
-            }
-            if (assets.base.loaded) { 
-                ctx.save(); 
-                ctx.globalCompositeOperation = 'multiply'; 
-                ctx.drawImage(assets.base.img, 0, 0, CW, CH); 
-                ctx.restore(); 
-            }
-            
-            if (ctx.letterSpacing !== undefined) {
-                ctx.letterSpacing = fontSpacing + "px";
+            // 2. 畫 B C D 層
+            if (assets.mask.loaded) drawTintedImage(ctx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
+            if (assets.texture.loaded) drawTintedImage(ctx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
+            if (assets.deco.loaded) drawTintedImage(ctx, assets.deco.img, document.getElementById('tintColorD').value, document.getElementById('tintEnableD').checked);
+            if (assets.base.loaded) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(assets.base.img, 0, 0, CW, CH); ctx.restore(); }
+
+            // 3. 繪製特效層
+            if (assets.effect.loaded) {
+                ctx.save();
+                ctx.globalAlpha = document.getElementById('effectOpacity').value;
+                ctx.globalCompositeOperation = document.getElementById('effectBlend').value;
+                ctx.drawImage(assets.effect.img, 0, 0, CW, CH);
+                ctx.restore();
             }
 
+            if (ctx.letterSpacing !== undefined) { ctx.letterSpacing = fontSpacing + "px"; }
             drawText(titleX, titleY, titleSize, raceX, raceY, raceSize, descX, descY, descW);
         }
 
@@ -384,8 +430,6 @@
             if(assets.rank.loaded) {
                 const tintRank = document.getElementById('tintEnableRank').checked;
                 const colorRank = document.getElementById('tintColorRank').value;
-                
-                // ★★★ 等級圖強制滿版，移除手動判斷 ★★★
                 drawTintedImage(ctx, assets.rank.img, colorRank, tintRank, 0, 0, CW, CH);
             }
             
