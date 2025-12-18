@@ -109,8 +109,8 @@
                     </div>
                 </div>
 
-                <div class="flex-label" style="margin-top:10px;">名稱 <input type="text" id="cardName" value="歐米女神" oninput="drawCard()" style="width:75%"></div>
-                <div class="flex-label">種族 <input type="text" id="cardRace" value="OLYMPUS / 希臘神話" oninput="drawCard()" style="width:75%"></div>
+                <div class="flex-label" style="margin-top:10px;">名稱 <input type="text" id="cardName" value="卡牌名稱" oninput="drawCard()" style="width:75%"></div>
+                <div class="flex-label">種族 <input type="text" id="cardRace" value="種族名稱" oninput="drawCard()" style="width:75%"></div>
                 
                 <div class="block-label">等級與顏色</div>
                 <div style="display:flex; gap:5px;">
@@ -132,12 +132,12 @@
                 
                 <h4 style="margin:10px 0 5px 0; color:#aaa;">標題控制</h4>
                 <div class="flex-label">X <input type="range" id="titleX" min="0" max="650" value="325" oninput="sync(this.value, 'n_titleX')"><input type="number" id="n_titleX" value="325" oninput="sync(this.value, 'titleX')"></div>
-                <div class="flex-label">Y <input type="range" id="titleY" min="0" max="200" value="70" oninput="sync(this.value, 'n_titleY')"><input type="number" id="n_titleY" value="70" oninput="sync(this.value, 'titleY')"></div>
+                <div class="flex-label">Y <input type="range" id="titleY" min="0" max="200" value="56" oninput="sync(this.value, 'n_titleY')"><input type="number" id="n_titleY" value="56" oninput="sync(this.value, 'titleY')"></div>
                 <div class="flex-label">大小 <input type="range" id="titleSize" min="10" max="100" value="42" oninput="sync(this.value, 'n_titleSize')"><input type="number" id="n_titleSize" value="42" oninput="sync(this.value, 'titleSize')"></div>
 
                 <h4 style="margin:10px 0 5px 0; color:#aaa;">種族控制</h4>
                 <div class="flex-label">X <input type="range" id="raceX" min="0" max="650" value="177" oninput="sync(this.value, 'n_raceX')"><input type="number" id="n_raceX" value="177" oninput="sync(this.value, 'raceX')"></div>
-                <div class="flex-label">Y <input type="range" id="raceY" min="400" max="900" value="652" oninput="sync(this.value, 'n_raceY')"><input type="number" id="n_raceY" value="652" oninput="sync(this.value, 'raceY')"></div>
+                <div class="flex-label">Y <input type="range" id="raceY" min="400" max="900" value="642" oninput="sync(this.value, 'n_raceY')"><input type="number" id="n_raceY" value="642" oninput="sync(this.value, 'raceY')"></div>
                 <div class="flex-label">大小 <input type="range" id="raceSize" min="10" max="80" value="32" oninput="sync(this.value, 'n_raceSize')"><input type="number" id="n_raceSize" value="32" oninput="sync(this.value, 'raceSize')"></div>
 
                 <h4 style="margin:10px 0 5px 0; color:#aaa;">說明文控制</h4>
@@ -329,3 +329,4 @@
     </script>
 </body>
 </html>
+
