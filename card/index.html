@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>像素卡牌產生器 v29.0 (鎖定圖層版)</title>
+    <title>歐米卡牌產生器</title>
     <style>
         body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 98vh; box-sizing: border-box; }
         
@@ -11,22 +11,18 @@
         
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* 狀態提示 */
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
 
-        /* 排版樣式 */
         .flex-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .block-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
 
         input[type="text"], select, textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
         
-        /* 圖層卡片 (鎖定版：沒有上傳按鈕) */
         .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative;}
         .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
         .layer-body { padding: 10px; }
 
-        /* 唯一保留的上傳按鈕 (給主角照片用) */
         .file-upload-label { display: inline-block; padding: 10px; background: #442222; color: #ffaaaa; border-radius: 4px; cursor: pointer; font-size: 0.9em; width: 100%; text-align: center; border: 1px solid #884444; box-sizing: border-box;}
         .file-upload-label:hover { background: #553333; color: #fff; }
         input[type="file"] { display: none; }
@@ -47,7 +43,6 @@
         canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
 
         button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
-        .mode-switch { background: #222; padding: 5px; border-radius: 5px; border: 1px solid #555; color: #aaa; margin-bottom: 15px; cursor: pointer; font-size: 0.8em;}
         .rank-full-switch { background: #2a4a2a; border: 1px solid #0f0; color: #afa; padding: 5px 10px; border-radius: 4px; margin-top: 5px; display: flex; justify-content: space-between; cursor: pointer;}
     </style>
 </head>
@@ -55,15 +50,10 @@
 
     <div class="controls">
         <h3>
-            卡牌編輯器
+            歐米卡牌編輯器
             <span id="globalStatus" class="status-badge">載入中...</span>
         </h3>
         
-        <label class="mode-switch" style="display:flex; justify-content:space-between; align-items:center;">
-            <div>⚙️ 啟用挖洞模式 (B挖空C)</div>
-            <input type="checkbox" id="maskingMode" onchange="drawCard()" style="width:20px; height:20px;">
-        </label>
-
         <div class="layer-card" style="border-color: #ffd700;">
             <div class="layer-header"><span>1. 邊框/遮罩色</span></div>
             <div class="layer-body">
@@ -116,6 +106,8 @@
 
                 <div class="flex-label">名稱 <input type="text" id="cardName" value="智慧女神" oninput="drawCard()" style="width:70%"></div>
                 
+                <div class="flex-label">種族 <input type="text" id="cardRace" value="希臘神話" oninput="drawCard()" style="width:70%"></div>
+                
                 <div style="display:flex; gap:5px; margin-top:5px;">
                     <div style="flex:1">
                          <div class="block-label">等級</div>
@@ -153,9 +145,12 @@
         </div>
         
         <details>
-            <summary>📐 進階：文字與等級位置調整</summary>
+            <summary>📐 進階：位置與大小調整</summary>
             <div class="details-content">
-                <h4 style="margin-top:0; color:#0f0;">等級圖位置</h4>
+                <h4 style="margin-top:0; color:#0f0;">主角照片縮放</h4>
+                <label class="flex-label">縮放比例 <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="drawCard()" style="width:70%"></label>
+
+                <h4 style="margin-top:15px; color:#aaa;">等級圖位置</h4>
                 <label class="rank-full-switch">
                     <span>☑️ 自動滿版對齊</span>
                     <input type="checkbox" id="rankFullMode" checked onchange="toggleRankControls(); drawCard();">
@@ -169,6 +164,10 @@
                 <div style="display:flex; gap:5px;"><input type="range" id="titleX" min="0" max="650" value="325" oninput="drawCard()"><input type="range" id="titleY" min="0" max="200" value="75" oninput="drawCard()"></div>
                 <label class="flex-label">標題大小 <input type="range" id="titleSize" min="20" max="80" value="42" oninput="drawCard()" style="width:60%"></label>
                 
+                <h4 style="margin-top:10px; color:#aaa;">種族位置</h4>
+                <div style="display:flex; gap:5px;"><input type="range" id="raceX" min="0" max="650" value="165" oninput="drawCard()"><input type="range" id="raceY" min="400" max="800" value="615" oninput="drawCard()"></div>
+                <label class="flex-label">種族大小 <input type="range" id="raceSize" min="16" max="50" value="32" oninput="drawCard()" style="width:60%"></label>
+
                 <h4 style="margin-top:10px; color:#aaa;">說明文位置</h4>
                 <div style="display:flex; gap:5px;"><input type="range" id="descX" min="0" max="200" value="85" oninput="drawCard()"><input type="range" id="descY" min="500" max="900" value="700" oninput="drawCard()"></div>
                 <label class="flex-label">文字寬度 <input type="range" id="descW" min="200" max="600" value="480" oninput="drawCard()" style="width:60%"></label>
@@ -188,7 +187,6 @@
         const CW = 650, CH = 900;
         canvas.width = CW; canvas.height = CH;
 
-        // ★★★ 鎖定的素材路徑 (使用者無法更改) ★★★
         const assets = {
             base: { src: 'frame_base.png', img: new Image(), loaded: false },
             mask: { src: 'layer_b.png',    img: new Image(), loaded: false },
@@ -219,7 +217,6 @@
             });
         }
 
-        // 只允許上傳主角照片
         document.getElementById('uploadUserImg').addEventListener('change', (e) => {
             const f = e.target.files[0];
             if (!f) return;
@@ -261,37 +258,53 @@
             ctx.fillStyle = document.getElementById('paperColor').value; 
             ctx.fillRect(0, 0, CW, CH);
 
+            // 1. 繪製主角 (在最底層)
             if (assets.user.loaded) {
-                const scale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
-                const w = assets.user.img.width * scale; const h = assets.user.img.height * scale;
+                const userScale = parseFloat(document.getElementById('userScale').value);
+                const baseScale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
+                const finalScale = baseScale * userScale;
+                const w = assets.user.img.width * finalScale; 
+                const h = assets.user.img.height * finalScale;
                 ctx.drawImage(assets.user.img, (CW-w)/2, (CH-h)/2, w, h);
             } else {
                 ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
             }
 
-            const isMaskMode = document.getElementById('maskingMode').checked;
+            // 2. 繪製 B層 (遮罩)
+            if (assets.mask.loaded) {
+                drawTintedImage(ctx, assets.mask.img, 
+                    document.getElementById('tintColorB').value, 
+                    document.getElementById('tintEnableB').checked);
+            }
 
-            if (isMaskMode) {
-                if (assets.mask.loaded) {
-                    const tCv = document.createElement('canvas'); tCv.width = CW; tCv.height = CH; const tCtx = tCv.getContext('2d');
-                    drawTintedImage(tCtx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
-                    tCtx.globalCompositeOperation = "source-in";
-                    if (assets.texture.loaded) drawTintedImage(tCtx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
-                    ctx.drawImage(tCv, 0, 0);
-                }
-            } else {
-                if (assets.mask.loaded) drawTintedImage(ctx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
-                if (assets.texture.loaded) drawTintedImage(ctx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
+            // 3. 繪製 C層 (紋理)
+            if (assets.texture.loaded) {
+                drawTintedImage(ctx, assets.texture.img, 
+                    document.getElementById('tintColorC').value, 
+                    document.getElementById('tintEnableC').checked);
             }
             
-            if (assets.deco.loaded) drawTintedImage(ctx, assets.deco.img, document.getElementById('tintColorD').value, document.getElementById('tintEnableD').checked);
-            if (assets.base.loaded) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(assets.base.img, 0, 0, CW, CH); ctx.restore(); }
+            // 4. 繪製 D層 (裝飾)
+            if (assets.deco.loaded) {
+                drawTintedImage(ctx, assets.deco.img, 
+                    document.getElementById('tintColorD').value, 
+                    document.getElementById('tintEnableD').checked);
+            }
+            
+            // 5. 繪製 底圖線稿 (Multiply 模式)
+            if (assets.base.loaded) { 
+                ctx.save(); 
+                ctx.globalCompositeOperation = 'multiply'; 
+                ctx.drawImage(assets.base.img, 0, 0, CW, CH); 
+                ctx.restore(); 
+            }
 
             drawText();
         }
 
         function drawText() {
             const name = document.getElementById('cardName').value;
+            const race = document.getElementById('cardRace').value;
             const desc = document.getElementById('cardDesc').value;
             const textColor = document.getElementById('textColor').value;
             const fontChoice = document.getElementById('fontSelect').value;
@@ -307,9 +320,11 @@
             ctx.font = `bold ${titleSize}px ${font}`;
             ctx.fillText(name, titleX, titleY);
 
-            // 種族 (隱藏欄位，暫時寫死)
-            // ctx.font = `bold 32px ${font}`;
-            // ctx.fillText("希臘神話", 165, 615);
+            const raceX = parseInt(document.getElementById('raceX').value);
+            const raceY = parseInt(document.getElementById('raceY').value);
+            const raceSize = parseInt(document.getElementById('raceSize').value);
+            ctx.font = `bold ${raceSize}px ${font}`;
+            ctx.fillText(race, raceX, raceY);
 
             if(assets.rank.loaded) {
                 const tintRank = document.getElementById('tintEnableRank').checked;
