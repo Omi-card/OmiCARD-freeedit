@@ -50,7 +50,6 @@
         canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
 
         button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
-        .rank-full-switch { background: #2a4a2a; border: 1px solid #0f0; color: #afa; padding: 5px 10px; border-radius: 4px; margin-top: 5px; display: flex; justify-content: space-between; cursor: pointer;}
     </style>
 </head>
 <body>
@@ -188,19 +187,6 @@
                     <div class="flex-label" style="flex:1">Y <input type="range" id="userY" min="-300" max="1200" value="450" oninput="drawCard()"> <span id="v_userY" class="val-display">450</span></div>
                 </div>
 
-                <h4 style="margin-top:15px; color:#aaa;">等級圖位置</h4>
-                <label class="rank-full-switch">
-                    <span>☑️ 自動滿版對齊</span>
-                    <input type="checkbox" id="rankFullMode" checked onchange="toggleRankControls(); drawCard();">
-                </label>
-                <div id="rankManualControls" style="display:none; opacity:0.5; margin-top:5px; border-left:2px solid #555; padding-left:5px;">
-                    <div style="display:flex; gap:5px;">
-                        <span style="font-size:0.8em">X</span> <input type="range" id="rankX" min="0" max="650" value="485" oninput="drawCard()"> <span id="v_rankX" class="val-display">485</span>
-                        <span style="font-size:0.8em">Y</span> <input type="range" id="rankY" min="400" max="800" value="615" oninput="drawCard()"> <span id="v_rankY" class="val-display">615</span>
-                    </div>
-                    <div class="flex-label">大小 <input type="range" id="rankSize" min="50" max="200" value="120" oninput="drawCard()" style="width:60%"> <span id="v_rankSize" class="val-display">120</span></div>
-                </div>
-
                 <h4 style="margin-top:15px; color:#aaa;">標題位置</h4>
                 <div style="display:flex; gap:5px;">
                     <span style="font-size:0.8em">X</span> <input type="range" id="titleX" min="0" max="650" value="325" oninput="drawCard()"> <span id="v_titleX" class="val-display">325</span>
@@ -292,11 +278,6 @@
             assets.rank.img.onload = () => { assets.rank.loaded = true; drawCard(); };
         }
 
-        function toggleRankControls() {
-            const isFull = document.getElementById('rankFullMode').checked;
-            document.getElementById('rankManualControls').style.display = isFull ? 'none' : 'block';
-        }
-
         function drawTintedImage(targetCtx, img, color, isEnabled, x=0, y=0, w=CW, h=CH) {
             if (!isEnabled) { targetCtx.drawImage(img, x, y, w, h); return; }
             const tCv = document.createElement('canvas'); tCv.width = w; tCv.height = h; const tCtx = tCv.getContext('2d');
@@ -333,11 +314,6 @@
             const descY = parseInt(document.getElementById('descY').value); updateVal('descY', descY);
             const descW = parseInt(document.getElementById('descW').value); updateVal('descW', descW);
 
-            const rankX = parseInt(document.getElementById('rankX').value); updateVal('rankX', rankX);
-            const rankY = parseInt(document.getElementById('rankY').value); updateVal('rankY', rankY);
-            const rankSize = parseInt(document.getElementById('rankSize').value); updateVal('rankSize', rankSize);
-            
-            // ★★★ 新增：讀取字體設定 ★★★
             const fontSpacing = document.getElementById('fontSpacing').value; updateVal('fontSpacing', fontSpacing);
 
             if (assets.user.loaded) {
@@ -373,7 +349,6 @@
                 ctx.restore(); 
             }
             
-            // ★★★ 設定 Canvas 字距 ★★★
             if (ctx.letterSpacing !== undefined) {
                 ctx.letterSpacing = fontSpacing + "px";
             }
@@ -388,7 +363,6 @@
             const textColor = document.getElementById('textColor').value;
             const fontChoice = document.getElementById('fontSelect').value;
             
-            // ★★★ 讀取粗體與斜體 ★★★
             const isBold = document.getElementById('fontBold').checked;
             const isItalic = document.getElementById('fontItalic').checked;
             let fontStyle = "";
@@ -401,7 +375,6 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            // 注意：這裡直接將大小數字拼接到 font 字串中
             ctx.font = `${fontStyle} ${ts}px ${fontChoice}, "Microsoft JhengHei", sans-serif`;
             ctx.fillText(name, tx, ty);
 
@@ -411,18 +384,9 @@
             if(assets.rank.loaded) {
                 const tintRank = document.getElementById('tintEnableRank').checked;
                 const colorRank = document.getElementById('tintColorRank').value;
-                const isFull = document.getElementById('rankFullMode').checked;
                 
-                let rxImg = 0, ryImg = 0, rw = CW, rh = CH;
-                if (!isFull) {
-                    const rX = parseInt(document.getElementById('rankX').value);
-                    const rY = parseInt(document.getElementById('rankY').value);
-                    const rSize = parseInt(document.getElementById('rankSize').value);
-                    const ratio = assets.rank.img.width / assets.rank.img.height;
-                    rw = rSize; rh = rw / ratio;
-                    rxImg = rX - rw/2; ryImg = rY - rh/2;
-                }
-                drawTintedImage(ctx, assets.rank.img, colorRank, tintRank, rxImg, ryImg, rw, rh);
+                // ★★★ 等級圖強制滿版，移除手動判斷 ★★★
+                drawTintedImage(ctx, assets.rank.img, colorRank, tintRank, 0, 0, CW, CH);
             }
             
             ctx.textAlign = "left";
