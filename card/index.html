@@ -10,80 +10,38 @@
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Hachi+Maru+Pop&family=Klee+One&family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=RocknRoll+One&family=Yusei+Magic&display=swap" rel="stylesheet">
 
     <style>
-        /* ★★★ 介面修復：防止雙重捲軸，確保滿版 ★★★ */
-        body { 
-            font-family: "Microsoft JhengHei", "FangSong", sans-serif; 
-            background: #1a1a1a; 
-            color: #fff; 
-            display: flex; 
-            gap: 20px; 
-            padding: 20px; 
-            height: 100vh; /* 鎖定視窗高度 */
-            overflow: hidden; /* 禁止外層滾動 */
-            box-sizing: border-box; 
-        }
-        
-        /* ★★★ 介面修復：底部加高 150px，確保最後一個選項不被切掉 ★★★ */
-        .controls { 
-            background: #2d2d2d; 
-            padding: 20px; 
-            padding-bottom: 150px; 
-            border-radius: 10px; 
-            width: 400px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            overflow-y: auto; /* 內部滾動 */
-            height: 100%; 
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5); 
-            flex-shrink: 0; 
-        }
-
-        /* 美化捲軸 */
+        body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 100vh; overflow: hidden; box-sizing: border-box; }
+        .controls { background: #2d2d2d; padding: 20px; padding-bottom: 150px; border-radius: 10px; width: 400px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; height: 100%; box-shadow: 2px 0 10px rgba(0,0,0,0.5); flex-shrink: 0; }
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb:hover { background: #777; }
-        
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
-        
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
-
         .flex-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .block-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
-
         input[type="text"], select, textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
-        
         .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative; flex-shrink: 0; }
         .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
         .layer-body { padding: 10px; }
-
         .file-upload-label { display: inline-block; padding: 10px; background: #442222; color: #ffaaaa; border-radius: 4px; cursor: pointer; font-size: 0.9em; width: 100%; text-align: center; border: 1px solid #884444; box-sizing: border-box;}
         .file-upload-label:hover { background: #553333; color: #fff; }
         input[type="file"] { display: none; }
-
         .color-row { display: flex; align-items: center; gap: 10px; background: #222; padding: 8px; border-radius: 5px; margin-top: 0; }
         input[type="color"] { border: none; width: 40px; height: 30px; cursor: pointer; background: none; padding: 0; }
         input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #0f0; }
-
         details { background: #222; border: 1px solid #444; border-radius: 5px; padding: 5px; margin-top: 10px; }
         summary { cursor: pointer; color: #ffd700; font-weight: bold; padding: 5px; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; } 
         summary:after { content: " ▼"; font-size: 0.8em; }
         details[open] summary:after { content: " ▲"; }
         .details-content { padding: 10px; border-top: 1px solid #444; margin-top: 5px; }
-        
         input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
-        input[type="number"] { 
-            background: #111; color: #0f0; border: 1px solid #444; 
-            border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; 
-        }
+        input[type="number"] { background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; }
         input[type="number"]:focus { border-color: #0f0; outline: none; }
-
         .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; }
         canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
-
         button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
     </style>
 </head>
@@ -132,12 +90,7 @@
             <div class="layer-header" style="background:#444;"><span>4. 卡面特效</span></div>
             <div class="layer-body">
                 <div class="block-label">選擇特效</div>
-                <select id="effectSelect" onchange="loadEffect()" style="width:100%">
-                    <option value="effect_none.png">無特效</option>
-                    <option value="effect_1.png">特效 1</option>
-                    <option value="effect_2.png">特效 2</option>
-                    <option value="effect_3.png">特效 3</option>
-                </select>
+                <select id="effectSelect" onchange="loadEffect()" style="width:100%"></select>
 
                 <div class="flex-label" style="margin-top:10px;">混合模式
                     <select id="effectBlend" onchange="drawCard()" style="width:50%">
@@ -243,7 +196,7 @@
             <summary>📐 進階：位置與大小調整 (精準版)</summary>
             <div class="details-content">
                 
-                <h4 style="margin-top:0; color:#0f0;">主角照片調整</h4>
+                <h4 style="margin-top:0; color:#0f0;">主角照片調整 (自動填滿)</h4>
                 <div class="flex-label">
                     縮放 
                     <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="sync(this.value, 'n_userScale')" style="width:50%"> 
@@ -300,6 +253,17 @@
     </div>
 
     <script>
+        // ★★★ 簡易設定區：在這裡增加或減少特效 ★★★
+        const effectList = [
+            { name: "無特效", file: "effect_none.png" },
+            { name: "特效 1 (金箔)", file: "effect_1.png" },
+            { name: "特效 2 (碎鑽)", file: "effect_2.png" },
+            { name: "特效 3 (光暈)", file: "effect_3.png" },
+            // 想加新的？複製上面一行，改名子和檔名即可！
+            // { name: "特效 4", file: "effect_4.png" }, 
+        ];
+
+        // --- 以下是程式核心 ---
         const canvas = document.getElementById('cardCanvas');
         const ctx = canvas.getContext('2d');
         const CW = 650, CH = 900;
@@ -310,12 +274,25 @@
             mask: { src: 'layer_b.png',    img: new Image(), loaded: false },
             texture: { src: 'layer_c.png', img: new Image(), loaded: false },
             deco: { src: 'layer_d.png',    img: new Image(), loaded: false },
-            effect: { src: 'effect_none.png', img: new Image(), loaded: false },
+            effect: { src: effectList[0].file, img: new Image(), loaded: false },
             rank: { src: 'rank_3.png',     img: new Image(), loaded: false }, 
             user: { src: null,             img: new Image(), loaded: false }
         };
 
+        // 初始化特效選單
+        function initEffectMenu() {
+            const select = document.getElementById('effectSelect');
+            select.innerHTML = "";
+            effectList.forEach(ef => {
+                const opt = document.createElement('option');
+                opt.value = ef.file;
+                opt.textContent = ef.name;
+                select.appendChild(opt);
+            });
+        }
+
         function preloadAssets() {
+            initEffectMenu(); // 產生選單
             let loadedCount = 0;
             const keys = ['base', 'mask', 'texture', 'deco', 'rank', 'effect'];
             keys.forEach(key => {
@@ -349,10 +326,45 @@
             const reader = new FileReader();
             reader.onload = (ev) => {
                 assets.user.img.src = ev.target.result;
-                assets.user.img.onload = () => { assets.user.loaded = true; drawCard(); };
+                assets.user.img.onload = () => { 
+                    assets.user.loaded = true; 
+                    autoFitUserImage(); // ★★★ 自動填滿圖片 ★★★
+                };
             };
             reader.readAsDataURL(f);
         });
+
+        // ★★★ 自動計算最佳填滿位置 (Object-Fit: Cover) ★★★
+        function autoFitUserImage() {
+            if(!assets.user.loaded) return;
+            const imgW = assets.user.img.width;
+            const imgH = assets.user.img.height;
+            
+            // 目標是填滿整個卡片 (650x900)
+            const targetW = CW; 
+            const targetH = CH;
+
+            // 計算 Cover 比例 (取長寬比的最大值)
+            const scale = Math.max(targetW / imgW, targetH / imgH);
+            
+            // 計算置中座標
+            // 公式：中心點座標 = 目標中心 - (圖片中心 * 縮放)
+            // 這裡直接算出左上角座標，再加回中心偏移
+            const x = (targetW - imgW * scale) / 2 + (imgW * scale / 2); 
+            const y = (targetH - imgH * scale) / 2 + (imgH * scale / 2);
+
+            // 更新拉桿與輸入框，這裡我們使用圖片中心點作為 X, Y 來繪製
+            // 由於 drawCard 裡的邏輯是用 center 繪製，所以這裡算出的 x, y 就是中心點
+            const centerX = targetW / 2;
+            const centerY = targetH / 2;
+
+            // 更新介面數值
+            sync(scale.toFixed(2), 'n_userScale'); sync(scale.toFixed(2), 'userScale');
+            sync(centerX.toFixed(0), 'n_userX');   sync(centerX.toFixed(0), 'userX');
+            sync(centerY.toFixed(0), 'n_userY');   sync(centerY.toFixed(0), 'userY');
+            
+            drawCard();
+        }
 
         function loadRank() {
             const val = document.getElementById('cardRankSelect').value;
@@ -410,12 +422,12 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 1. 畫主角
+            // 1. 畫主角 (以 userX, userY 為中心)
             if (assets.user.loaded) {
-                const baseScale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
-                const finalScale = baseScale * userScale;
-                const w = assets.user.img.width * finalScale; 
-                const h = assets.user.img.height * finalScale;
+                const baseScale = 1; // 基礎比例已由 autoFit 處理，這裡直接用 scale
+                // 因為我們在 autoFit 算的是絕對 scale，這裡基礎 w, h 直接用原圖
+                const w = assets.user.img.width * userScale; 
+                const h = assets.user.img.height * userScale;
                 ctx.drawImage(assets.user.img, userX - w/2, userY - h/2, w, h);
             } else {
                 ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
