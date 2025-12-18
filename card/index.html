@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素卡牌產生器 v29.0 (鎖定圖層版)</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 98vh; box-sizing: border-box; }
+        
+        .controls { background: #2d2d2d; padding: 20px; border-radius: 10px; width: 400px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; height: 100%; box-shadow: 2px 0 10px rgba(0,0,0,0.5); flex-shrink: 0; }
+        
+        h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 狀態提示 */
+        .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
+        .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
+
+        /* 排版樣式 */
+        .flex-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .block-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
+
+        input[type="text"], select, textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
+        
+        /* 圖層卡片 (鎖定版：沒有上傳按鈕) */
+        .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative;}
+        .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
+        .layer-body { padding: 10px; }
+
+        /* 唯一保留的上傳按鈕 (給主角照片用) */
+        .file-upload-label { display: inline-block; padding: 10px; background: #442222; color: #ffaaaa; border-radius: 4px; cursor: pointer; font-size: 0.9em; width: 100%; text-align: center; border: 1px solid #884444; box-sizing: border-box;}
+        .file-upload-label:hover { background: #553333; color: #fff; }
+        input[type="file"] { display: none; }
+
+        .color-row { display: flex; align-items: center; gap: 10px; background: #222; padding: 8px; border-radius: 5px; margin-top: 0; }
+        input[type="color"] { border: none; width: 40px; height: 30px; cursor: pointer; background: none; padding: 0; }
+        input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #0f0; }
+
+        details { background: #222; border: 1px solid #444; border-radius: 5px; padding: 5px; margin-top: 10px; }
+        summary { cursor: pointer; color: #ffd700; font-weight: bold; padding: 5px; outline: none; list-style: none; }
+        summary::-webkit-details-marker { display: none; } 
+        summary:after { content: " ▼"; font-size: 0.8em; }
+        details[open] summary:after { content: " ▲"; }
+        .details-content { padding: 10px; border-top: 1px solid #444; margin-top: 5px; }
+        input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
+
+        .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; }
+        canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
+
+        button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
+        .mode-switch { background: #222; padding: 5px; border-radius: 5px; border: 1px solid #555; color: #aaa; margin-bottom: 15px; cursor: pointer; font-size: 0.8em;}
+        .rank-full-switch { background: #2a4a2a; border: 1px solid #0f0; color: #afa; padding: 5px 10px; border-radius: 4px; margin-top: 5px; display: flex; justify-content: space-between; cursor: pointer;}
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <h3>
+            卡牌編輯器
+            <span id="globalStatus" class="status-badge">載入中...</span>
+        </h3>
+        
+        <label class="mode-switch" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>⚙️ 啟用挖洞模式 (B挖空C)</div>
+            <input type="checkbox" id="maskingMode" onchange="drawCard()" style="width:20px; height:20px;">
+        </label>
+
+        <div class="layer-card" style="border-color: #ffd700;">
+            <div class="layer-header"><span>1. 邊框/遮罩色</span></div>
+            <div class="layer-body">
+                <div class="color-row">
+                    <input type="checkbox" id="tintEnableB" onchange="drawCard()">
+                    <span style="flex:1">啟用染色</span>
+                    <input type="color" id="tintColorB" value="#ff0000" oninput="drawCard()">
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-card" style="border-color: #00ffff;">
+            <div class="layer-header"><span>2. 紋理色</span></div>
+            <div class="layer-body">
+                <div class="color-row">
+                    <input type="checkbox" id="tintEnableC" onchange="drawCard()">
+                    <span style="flex:1">啟用染色</span>
+                    <input type="color" id="tintColorC" value="#ffff00" oninput="drawCard()">
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-card" style="border-color: #ff55ff;">
+            <div class="layer-header"><span>3. 頂層裝飾色</span></div>
+            <div class="layer-body">
+                <div class="color-row">
+                    <input type="checkbox" id="tintEnableD" onchange="drawCard()">
+                    <span style="flex:1">啟用染色</span>
+                    <input type="color" id="tintColorD" value="#00ff00" oninput="drawCard()">
+                </div>
+            </div>
+        </div>
+
+        <div class="layer-card" style="border-color: #fff; margin-top:15px;">
+            <div class="layer-header">內容設定</div>
+            <div class="layer-body">
+                <label class="file-upload-label">
+                    📸 上傳主角照片 (必填)
+                    <input type="file" id="uploadUserImg" accept="image/*">
+                </label>
+                
+                <div class="flex-label" style="margin-top:10px;">字體
+                    <select id="fontSelect" onchange="drawCard()" style="width:60%">
+                        <option value="Microsoft JhengHei">微軟正黑體</option>
+                        <option value="FangSong">仿宋體</option>
+                        <option value="STFangsong">華文仿宋</option>
+                        <option value="monospace">像素風</option>
+                    </select>
+                </div>
+
+                <div class="flex-label">名稱 <input type="text" id="cardName" value="智慧女神" oninput="drawCard()" style="width:70%"></div>
+                
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <div style="flex:1">
+                         <div class="block-label">等級</div>
+                         <select id="cardRankSelect" onchange="loadRank()" style="width:100%">
+                            <option value="rank_1.png">Lv.1</option>
+                            <option value="rank_2.png">Lv.2</option>
+                            <option value="rank_3.png" selected>Lv.3</option>
+                            <option value="rank_4.png">Lv.4</option>
+                            <option value="rank_5.png">Lv.5</option>
+                            <option value="rank_6.png">Lv.6</option>
+                            <option value="rank_6_pumpkin.png">🎃 Lv.6 南瓜</option>
+                        </select>
+                        <div class="color-row" style="padding:2px; margin-top:2px; border:1px solid #555;">
+                             <input type="checkbox" id="tintEnableRank" onchange="drawCard()">
+                             <span style="font-size:0.8em; flex:1;">圖示染色</span>
+                             <input type="color" id="tintColorRank" value="#000000" oninput="drawCard()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="block-label">說明文</div>
+                <textarea id="cardDesc" rows="3" oninput="drawCard()">輸入你的說明文字...</textarea>
+                
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <div style="flex:1; display:flex; align-items:center; justify-content:space-between; background:#222; padding:5px; border-radius:4px;">
+                        <span style="font-size:0.9em; color:#ccc; font-weight:bold;">文字色</span>
+                        <input type="color" id="textColor" value="#000000" oninput="drawCard()" style="height:30px; width:40px; border:none; cursor:pointer;">
+                    </div>
+                    <div style="flex:1; display:flex; align-items:center; justify-content:space-between; background:#222; padding:5px; border-radius:4px;">
+                        <span style="font-size:0.9em; color:#ccc; font-weight:bold;">底紙色</span>
+                        <input type="color" id="paperColor" value="#FFFBE6" oninput="drawCard()" style="height:30px; width:40px; border:none; cursor:pointer;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <details>
+            <summary>📐 進階：文字與等級位置調整</summary>
+            <div class="details-content">
+                <h4 style="margin-top:0; color:#0f0;">等級圖位置</h4>
+                <label class="rank-full-switch">
+                    <span>☑️ 自動滿版對齊</span>
+                    <input type="checkbox" id="rankFullMode" checked onchange="toggleRankControls(); drawCard();">
+                </label>
+                <div id="rankManualControls" style="display:none; opacity:0.5; margin-top:5px; border-left:2px solid #555; padding-left:5px;">
+                    <div style="display:flex; gap:5px;"><input type="range" id="rankX" min="0" max="650" value="485" oninput="drawCard()"><input type="range" id="rankY" min="400" max="800" value="615" oninput="drawCard()"></div>
+                    <label class="flex-label">等級大小 <input type="range" id="rankSize" min="50" max="200" value="120" oninput="drawCard()" style="width:60%"></label>
+                </div>
+
+                <h4 style="margin-top:15px; color:#aaa;">標題位置</h4>
+                <div style="display:flex; gap:5px;"><input type="range" id="titleX" min="0" max="650" value="325" oninput="drawCard()"><input type="range" id="titleY" min="0" max="200" value="75" oninput="drawCard()"></div>
+                <label class="flex-label">標題大小 <input type="range" id="titleSize" min="20" max="80" value="42" oninput="drawCard()" style="width:60%"></label>
+                
+                <h4 style="margin-top:10px; color:#aaa;">說明文位置</h4>
+                <div style="display:flex; gap:5px;"><input type="range" id="descX" min="0" max="200" value="85" oninput="drawCard()"><input type="range" id="descY" min="500" max="900" value="700" oninput="drawCard()"></div>
+                <label class="flex-label">文字寬度 <input type="range" id="descW" min="200" max="600" value="480" oninput="drawCard()" style="width:60%"></label>
+            </div>
+        </details>
+
+        <button onclick="downloadCard()">下載卡牌</button>
+    </div>
+
+    <div class="preview-area">
+        <canvas id="cardCanvas" width="650" height="900"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cardCanvas');
+        const ctx = canvas.getContext('2d');
+        const CW = 650, CH = 900;
+        canvas.width = CW; canvas.height = CH;
+
+        // ★★★ 鎖定的素材路徑 (使用者無法更改) ★★★
+        const assets = {
+            base: { src: 'frame_base.png', img: new Image(), loaded: false },
+            mask: { src: 'layer_b.png',    img: new Image(), loaded: false },
+            texture: { src: 'layer_c.png', img: new Image(), loaded: false },
+            deco: { src: 'layer_d.png',    img: new Image(), loaded: false },
+            rank: { src: 'rank_3.png',     img: new Image(), loaded: false }, 
+            user: { src: null,             img: new Image(), loaded: false }
+        };
+
+        function preloadAssets() {
+            let loadedCount = 0;
+            const keys = ['base', 'mask', 'texture', 'deco', 'rank'];
+            keys.forEach(key => {
+                if (assets[key].src) {
+                    assets[key].img.crossOrigin = "Anonymous";
+                    assets[key].img.src = assets[key].src;
+                    assets[key].img.onload = () => {
+                        assets[key].loaded = true;
+                        loadedCount++;
+                        drawCard();
+                        if(loadedCount >= keys.length) {
+                            document.getElementById('globalStatus').textContent = "系統就緒";
+                            document.getElementById('globalStatus').classList.add('ready');
+                        }
+                    };
+                    assets[key].img.onerror = () => { console.warn(`找不到圖片: ${assets[key].src}`); };
+                }
+            });
+        }
+
+        // 只允許上傳主角照片
+        document.getElementById('uploadUserImg').addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (!f) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                assets.user.img.src = ev.target.result;
+                assets.user.img.onload = () => {
+                    assets.user.loaded = true;
+                    drawCard();
+                };
+            };
+            reader.readAsDataURL(f);
+        });
+
+        function loadRank() {
+            const val = document.getElementById('cardRankSelect').value;
+            assets.rank.loaded = false;
+            assets.rank.img.src = val; 
+            assets.rank.img.onload = () => { assets.rank.loaded = true; drawCard(); };
+        }
+
+        function toggleRankControls() {
+            const isFull = document.getElementById('rankFullMode').checked;
+            document.getElementById('rankManualControls').style.display = isFull ? 'none' : 'block';
+        }
+
+        function drawTintedImage(targetCtx, img, color, isEnabled, x=0, y=0, w=CW, h=CH) {
+            if (!isEnabled) { targetCtx.drawImage(img, x, y, w, h); return; }
+            const tCv = document.createElement('canvas'); tCv.width = w; tCv.height = h; const tCtx = tCv.getContext('2d');
+            tCtx.drawImage(img, 0, 0, w, h);
+            tCtx.globalCompositeOperation = 'source-in';
+            tCtx.fillStyle = color;
+            tCtx.fillRect(0, 0, w, h);
+            targetCtx.drawImage(tCv, x, y, w, h);
+        }
+
+        function drawCard() {
+            ctx.clearRect(0, 0, CW, CH);
+            ctx.fillStyle = document.getElementById('paperColor').value; 
+            ctx.fillRect(0, 0, CW, CH);
+
+            if (assets.user.loaded) {
+                const scale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
+                const w = assets.user.img.width * scale; const h = assets.user.img.height * scale;
+                ctx.drawImage(assets.user.img, (CW-w)/2, (CH-h)/2, w, h);
+            } else {
+                ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
+            }
+
+            const isMaskMode = document.getElementById('maskingMode').checked;
+
+            if (isMaskMode) {
+                if (assets.mask.loaded) {
+                    const tCv = document.createElement('canvas'); tCv.width = CW; tCv.height = CH; const tCtx = tCv.getContext('2d');
+                    drawTintedImage(tCtx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
+                    tCtx.globalCompositeOperation = "source-in";
+                    if (assets.texture.loaded) drawTintedImage(tCtx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
+                    ctx.drawImage(tCv, 0, 0);
+                }
+            } else {
+                if (assets.mask.loaded) drawTintedImage(ctx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
+                if (assets.texture.loaded) drawTintedImage(ctx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
+            }
+            
+            if (assets.deco.loaded) drawTintedImage(ctx, assets.deco.img, document.getElementById('tintColorD').value, document.getElementById('tintEnableD').checked);
+            if (assets.base.loaded) { ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(assets.base.img, 0, 0, CW, CH); ctx.restore(); }
+
+            drawText();
+        }
+
+        function drawText() {
+            const name = document.getElementById('cardName').value;
+            const desc = document.getElementById('cardDesc').value;
+            const textColor = document.getElementById('textColor').value;
+            const fontChoice = document.getElementById('fontSelect').value;
+            const font = `"${fontChoice}", sans-serif`;
+
+            ctx.fillStyle = textColor;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const titleX = parseInt(document.getElementById('titleX').value);
+            const titleY = parseInt(document.getElementById('titleY').value);
+            const titleSize = parseInt(document.getElementById('titleSize').value);
+            ctx.font = `bold ${titleSize}px ${font}`;
+            ctx.fillText(name, titleX, titleY);
+
+            // 種族 (隱藏欄位，暫時寫死)
+            // ctx.font = `bold 32px ${font}`;
+            // ctx.fillText("希臘神話", 165, 615);
+
+            if(assets.rank.loaded) {
+                const tintRank = document.getElementById('tintEnableRank').checked;
+                const colorRank = document.getElementById('tintColorRank').value;
+                const isFull = document.getElementById('rankFullMode').checked;
+                
+                let rx = 0, ry = 0, rw = CW, rh = CH;
+                if (!isFull) {
+                    const rX = parseInt(document.getElementById('rankX').value);
+                    const rY = parseInt(document.getElementById('rankY').value);
+                    const rSize = parseInt(document.getElementById('rankSize').value);
+                    const ratio = assets.rank.img.width / assets.rank.img.height;
+                    rw = rSize; rh = rw / ratio;
+                    rx = rX - rw/2; ry = rY - rh/2;
+                }
+                drawTintedImage(ctx, assets.rank.img, colorRank, tintRank, rx, ry, rw, rh);
+            }
+            
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            const descX = parseInt(document.getElementById('descX').value);
+            const descY = parseInt(document.getElementById('descY').value);
+            const descW = parseInt(document.getElementById('descW').value);
+            ctx.font = `bold 26px ${font}`;
+            wrapText(ctx, desc, descX, descY, descW, 38);
+        }
+
+        function wrapText(ctx, text, x, y, maxW, lineH) {
+            let words = text.split(''); let line = '';
+            for (let n = 0; n < words.length; n++) {
+                let testLine = line + words[n];
+                if (ctx.measureText(testLine).width > maxW && n > 0) { ctx.fillText(line, x, y); line = words[n]; y += lineH; } 
+                else { line = testLine; }
+            } ctx.fillText(line, x, y);
+        }
+        
+        function downloadCard() {
+            const a = document.createElement('a');
+            a.download = document.getElementById('cardName').value + ".png";
+            a.href = canvas.toDataURL("image/png");
+            a.click();
+        }
+
+        window.addEventListener('load', preloadAssets);
+    </script>
+</body>
+</html>
