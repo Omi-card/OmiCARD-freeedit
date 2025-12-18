@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>歐米卡牌產生器</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Ma+Shan+Zheng&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+
     <style>
         body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 98vh; box-sizing: border-box; }
         
@@ -97,10 +102,11 @@
                 
                 <div class="flex-label" style="margin-top:10px;">字體
                     <select id="fontSelect" onchange="drawCard()" style="width:60%">
-                        <option value="Microsoft JhengHei">微軟正黑體</option>
-                        <option value="FangSong">仿宋體</option>
-                        <option value="STFangsong">華文仿宋</option>
-                        <option value="monospace">像素風</option>
+                        <option value="Microsoft JhengHei">微軟正黑體 (預設)</option>
+                        <option value="DFKai-SB, BiaoKai">標楷體 (僅電腦)</option>
+                        <option value="'Noto Serif TC', serif">思源宋體 (文青風)</option>
+                        <option value="'Ma Shan Zheng', cursive">馬善政毛筆 (霸氣)</option>
+                        <option value="'DotGothic16', sans-serif">點陣像素 (復古)</option>
                     </select>
                 </div>
 
@@ -147,8 +153,12 @@
         <details>
             <summary>📐 進階：位置與大小調整</summary>
             <div class="details-content">
-                <h4 style="margin-top:0; color:#0f0;">主角照片縮放</h4>
-                <label class="flex-label">縮放比例 <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="drawCard()" style="width:70%"></label>
+                <h4 style="margin-top:0; color:#0f0;">主角照片調整</h4>
+                <label class="flex-label">縮放 <input type="range" id="userScale" min="0.5" max="2.5" step="0.01" value="1.0" oninput="drawCard()" style="width:70%"></label>
+                <div style="display:flex; gap:5px;">
+                    <label class="flex-label">左右 <input type="range" id="userX" min="-300" max="900" value="325" oninput="drawCard()"></label>
+                    <label class="flex-label">上下 <input type="range" id="userY" min="-300" max="1200" value="450" oninput="drawCard()"></label>
+                </div>
 
                 <h4 style="margin-top:15px; color:#aaa;">等級圖位置</h4>
                 <label class="rank-full-switch">
@@ -160,15 +170,15 @@
                     <label class="flex-label">等級大小 <input type="range" id="rankSize" min="50" max="200" value="120" oninput="drawCard()" style="width:60%"></label>
                 </div>
 
-                <h4 style="margin-top:15px; color:#aaa;">標題位置</h4>
+                <h4 style="margin-top:15px; color:#aaa;">標題位置 (已固定)</h4>
                 <div style="display:flex; gap:5px;"><input type="range" id="titleX" min="0" max="650" value="325" oninput="drawCard()"><input type="range" id="titleY" min="0" max="200" value="75" oninput="drawCard()"></div>
                 <label class="flex-label">標題大小 <input type="range" id="titleSize" min="20" max="80" value="42" oninput="drawCard()" style="width:60%"></label>
                 
-                <h4 style="margin-top:10px; color:#aaa;">種族位置</h4>
+                <h4 style="margin-top:10px; color:#aaa;">種族位置 (已固定)</h4>
                 <div style="display:flex; gap:5px;"><input type="range" id="raceX" min="0" max="650" value="165" oninput="drawCard()"><input type="range" id="raceY" min="400" max="800" value="615" oninput="drawCard()"></div>
                 <label class="flex-label">種族大小 <input type="range" id="raceSize" min="16" max="50" value="32" oninput="drawCard()" style="width:60%"></label>
 
-                <h4 style="margin-top:10px; color:#aaa;">說明文位置</h4>
+                <h4 style="margin-top:10px; color:#aaa;">說明文位置 (已固定)</h4>
                 <div style="display:flex; gap:5px;"><input type="range" id="descX" min="0" max="200" value="85" oninput="drawCard()"><input type="range" id="descY" min="500" max="900" value="700" oninput="drawCard()"></div>
                 <label class="flex-label">文字寬度 <input type="range" id="descW" min="200" max="600" value="480" oninput="drawCard()" style="width:60%"></label>
             </div>
@@ -206,16 +216,20 @@
                     assets[key].img.onload = () => {
                         assets[key].loaded = true;
                         loadedCount++;
-                        drawCard();
                         if(loadedCount >= keys.length) {
                             document.getElementById('globalStatus').textContent = "系統就緒";
                             document.getElementById('globalStatus').classList.add('ready');
+                            setTimeout(drawCard, 500);
                         }
                     };
                     assets[key].img.onerror = () => { console.warn(`找不到圖片: ${assets[key].src}`); };
                 }
             });
         }
+
+        document.fonts.ready.then(function () {
+            drawCard();
+        });
 
         document.getElementById('uploadUserImg').addEventListener('change', (e) => {
             const f = e.target.files[0];
@@ -258,40 +272,38 @@
             ctx.fillStyle = document.getElementById('paperColor').value; 
             ctx.fillRect(0, 0, CW, CH);
 
-            // 1. 繪製主角 (在最底層)
             if (assets.user.loaded) {
+                // ★★★ 核心修改：讀取縮放與位移參數 ★★★
                 const userScale = parseFloat(document.getElementById('userScale').value);
+                const userX = parseFloat(document.getElementById('userX').value);
+                const userY = parseFloat(document.getElementById('userY').value);
+                
                 const baseScale = Math.max(CW/assets.user.img.width, CH/assets.user.img.height);
                 const finalScale = baseScale * userScale;
                 const w = assets.user.img.width * finalScale; 
                 const h = assets.user.img.height * finalScale;
-                ctx.drawImage(assets.user.img, (CW-w)/2, (CH-h)/2, w, h);
+                
+                // 使用 userX, userY 作為中心點來繪製
+                ctx.drawImage(assets.user.img, userX - w/2, userY - h/2, w, h);
             } else {
                 ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
             }
 
-            // 2. 繪製 B層 (遮罩)
             if (assets.mask.loaded) {
                 drawTintedImage(ctx, assets.mask.img, 
                     document.getElementById('tintColorB').value, 
                     document.getElementById('tintEnableB').checked);
             }
-
-            // 3. 繪製 C層 (紋理)
             if (assets.texture.loaded) {
                 drawTintedImage(ctx, assets.texture.img, 
                     document.getElementById('tintColorC').value, 
                     document.getElementById('tintEnableC').checked);
             }
-            
-            // 4. 繪製 D層 (裝飾)
             if (assets.deco.loaded) {
                 drawTintedImage(ctx, assets.deco.img, 
                     document.getElementById('tintColorD').value, 
                     document.getElementById('tintEnableD').checked);
             }
-            
-            // 5. 繪製 底圖線稿 (Multiply 模式)
             if (assets.base.loaded) { 
                 ctx.save(); 
                 ctx.globalCompositeOperation = 'multiply'; 
@@ -308,7 +320,7 @@
             const desc = document.getElementById('cardDesc').value;
             const textColor = document.getElementById('textColor').value;
             const fontChoice = document.getElementById('fontSelect').value;
-            const font = `"${fontChoice}", sans-serif`;
+            const font = `${fontChoice}, "Microsoft JhengHei", sans-serif`;
 
             ctx.fillStyle = textColor;
             ctx.textAlign = "center";
