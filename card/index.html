@@ -409,8 +409,8 @@
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
             // 3. 自動填滿目標尺寸更新 (519x469)
-            const targetW = 519;
-            const targetH = 469;
+            const targetW = 520;
+            const targetH = 470;
             const targetCenterX = 325;
             const targetCenterY = 354;
 
@@ -479,14 +479,14 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 繪製主角照片 (Clipping Mask - 修正尺寸 519x469)
+            // 繪製主角照片 (Clipping Mask - 修正尺寸 520x470)
             if (assets.user.loaded) {
                 ctx.save();
                 ctx.beginPath();
-                // 座標精算：中心(325, 354)，寬519，高469
-                // X = 325 - 259.5 = 65.5
-                // Y = 354 - 234.5 = 119.5
-                ctx.rect(65.5, 119.5, 519, 469); 
+                // 座標精算：中心(325, 354)，寬520，高470
+                // X = 325 - 260 = 65
+                // Y = 354 - 235 = 119
+                ctx.rect(65, 119, 520, 470); 
                 ctx.clip(); 
 
                 const w = assets.user.img.width * userScale; 
@@ -573,3 +573,4 @@
     </script>
 </body>
 </html>
+
