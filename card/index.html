@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歐米卡牌編輯器</title>
+    <title>歐米卡牌編輯器 v2.1 (裁切修正版)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Hachi+Maru+Pop&family=Klee+One&family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&family=RocknRoll+One&family=Yusei+Magic&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Dela+Gothic+One&family=DotGothic16&family=Hachi+Maru+Pop&family=Kaisei+Tokumin:wght@700&family=Klee+One&family=Ma+Shan+Zheng&family=Mochiy+Pop+P+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Potta+One&family=RocknRoll+One&family=Yusei+Magic&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 100vh; overflow: hidden; box-sizing: border-box; }
@@ -53,35 +53,35 @@
             <span id="globalStatus" class="status-badge">載入中...</span>
         </h3>
         
-        <div class="layer-card" style="border-color: #ffd700;">
+        <div class="layer-card" style="border-color: #E60012;">
             <div class="layer-header"><span>1. 邊框/遮罩色</span></div>
             <div class="layer-body">
                 <div class="color-row">
                     <input type="checkbox" id="tintEnableB" checked onchange="drawCard()">
                     <span style="flex:1">啟用染色</span>
-                    <input type="color" id="tintColorB" value="#ff0000" oninput="drawCard()">
+                    <input type="color" id="tintColorB" value="#E60012" oninput="drawCard()">
                 </div>
             </div>
         </div>
 
-        <div class="layer-card" style="border-color: #00ffff;">
+        <div class="layer-card" style="border-color: #F39800;">
             <div class="layer-header"><span>2. 紋理色</span></div>
             <div class="layer-body">
                 <div class="color-row">
                     <input type="checkbox" id="tintEnableC" checked onchange="drawCard()">
                     <span style="flex:1">啟用染色</span>
-                    <input type="color" id="tintColorC" value="#ffff00" oninput="drawCard()">
+                    <input type="color" id="tintColorC" value="#F39800" oninput="drawCard()">
                 </div>
             </div>
         </div>
 
-        <div class="layer-card" style="border-color: #ff55ff;">
+        <div class="layer-card" style="border-color: #FFD700;">
             <div class="layer-header"><span>3. 頂層裝飾色</span></div>
             <div class="layer-body">
                 <div class="color-row">
                     <input type="checkbox" id="tintEnableD" checked onchange="drawCard()">
                     <span style="flex:1">啟用染色</span>
-                    <input type="color" id="tintColorD" value="#00ff00" oninput="drawCard()">
+                    <input type="color" id="tintColorD" value="#FFD700" oninput="drawCard()">
                 </div>
             </div>
         </div>
@@ -120,19 +120,35 @@
                 
                 <div class="flex-label" style="margin-top:10px;">字體
                     <select id="fontSelect" onchange="drawCard()" style="width:60%">
-                        <optgroup label="經典字體">
+                        <optgroup label="經典常用">
                             <option value="Microsoft JhengHei">微軟正黑體</option>
                             <option value="DFKai-SB, BiaoKai">標楷體</option>
+                            <option value="'Noto Sans TC'">思源黑體 (標準)</option>
+                            <option value="'Noto Serif TC'">思源宋體 (標準)</option>
                         </optgroup>
-                        <optgroup label="網路字體">
-                            <option value="'Noto Sans TC'">思源黑體</option>
-                            <option value="'Noto Serif TC'">思源宋體</option>
-                            <option value="'Klee One'">克利體</option>
+                        
+                        <optgroup label="✨ 新增：特色中文/漢字">
+                            <option value="'Dela Gothic One'">極粗哥特 (魄力標題)</option>
+                            <option value="'Kaisei Tokumin'">特克明朝 (奇幻鋒利)</option>
+                            <option value="'Potta One'">日系濃筆 (毛筆感)</option>
+                            <option value="'Mochiy Pop P One'">圓潤POP (可愛)</option>
+                            <option value="'Zhi Mang Xing'">芝莽行書 (狂野)</option>
                             <option value="'Ma Shan Zheng'">馬善政毛筆</option>
+                        </optgroup>
+
+                        <optgroup label="手寫/可愛風格">
+                            <option value="'Klee One'">克利體 (硬筆手寫)</option>
                             <option value="'Yusei Magic'">油性筆體</option>
                             <option value="'Hachi Maru Pop'">波波體</option>
                             <option value="'RocknRoll One'">搖滾體</option>
-                            <option value="'DotGothic16'">點陣像素</option>
+                            <option value="'DotGothic16'">點陣像素 (復古)</option>
+                        </optgroup>
+
+                        <optgroup label="🌎 特殊語言風格 (英/韓)">
+                            <option value="'Cinzel'">Cinzel (歐風羅馬石刻)</option>
+                            <option value="'Orbitron'">Orbitron (科幻數字)</option>
+                            <option value="'Creepster'">Creepster (恐怖驚悚)</option>
+                            <option value="'Black And White Picture'">Black&White (韓系粗刷)</option>
                         </optgroup>
                     </select>
                 </div>
@@ -405,13 +421,27 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
+            // --- 繪製主角照片 (新增 Clipping 剪裁功能) ---
             if (assets.user.loaded) {
+                ctx.save();
+                // 定義剪裁路徑 (中間的白框區域)
+                // 左上X = 325 - 255 = 70
+                // 左上Y = 354 - 230 = 124
+                ctx.beginPath();
+                ctx.rect(70, 124, 510, 460); 
+                ctx.clip(); // 啟動剪裁，超出範圍的圖片不顯示
+
                 const w = assets.user.img.width * userScale; 
                 const h = assets.user.img.height * userScale;
                 ctx.drawImage(assets.user.img, userX - w/2, userY - h/2, w, h);
+                
+                ctx.restore(); // 解除剪裁，以免影響後面
             } else {
-                ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; ctx.fillText("請上傳主角照片", CW/2, CH/2);
+                ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; 
+                // 調整文字位置到框框中心
+                ctx.fillText("請上傳主角照片", CW/2, 354);
             }
+            // ------------------------------------------
 
             if (assets.mask.loaded) drawTintedImage(ctx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
             if (assets.texture.loaded) drawTintedImage(ctx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
