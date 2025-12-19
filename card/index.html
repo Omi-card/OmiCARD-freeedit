@@ -2,30 +2,34 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歐米卡牌編輯器 v3.1 (視窗與裁切最終修正)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>歐米卡牌編輯器 v4.0 (手機電腦通用版)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Dela+Gothic+One&family=DotGothic16&family=Hachi+Maru+Pop&family=Kaisei+Tokumin:wght@700&family=Klee+One&family=Ma+Shan+Zheng&family=Mochiy+Pop+P+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Potta+One&family=RocknRoll+One&family=Yusei+Magic&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 
     <style>
-        /* 1. 全局佈局：確保不出現滾動條 */
+        /* === 全局設定 === */
         body { 
             font-family: "Microsoft JhengHei", "FangSong", sans-serif; 
             background: #1a1a1a; 
             color: #fff; 
-            display: flex; 
-            gap: 20px; 
-            padding: 20px; 
-            height: 100vh; 
+            margin: 0;
+            padding: 20px;
+            height: 100vh; /* fallback */
+            height: 100dvh; /* 手機專用動態高度 */
             width: 100vw;
             overflow: hidden; 
             box-sizing: border-box; 
-            margin: 0;
+            
+            /* 預設：電腦版 (左右佈局) */
+            display: flex; 
+            flex-direction: row; 
+            gap: 20px; 
         }
 
-        /* 左側控制區 */
+        /* === 左側控制區 (電腦) === */
         .controls { 
             background: #2d2d2d; 
             padding: 20px; 
@@ -40,19 +44,77 @@
             height: 100%; 
             box-shadow: 2px 0 10px rgba(0,0,0,0.5); 
             flex-shrink: 0; 
+            z-index: 2;
         }
+        
+        /* === 右側預覽區 (電腦) === */
+        .preview-area { 
+            flex: 1; 
+            background: #000; 
+            border-radius: 10px; 
+            padding: 40px; 
+            border: 1px solid #444; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+            height: 100%; 
+            min-width: 0; 
+            position: relative;
+        }
+
+        /* === Canvas 設定 === */
+        canvas { 
+            background: #fff; 
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); 
+            border: 2px solid #333; 
+            max-width: 100%; 
+            max-height: 100%; 
+            width: auto; 
+            height: auto; 
+            object-fit: contain; 
+        }
+
+        /* === 📱 手機版 RWD 響應式設定 === */
+        /* 當螢幕寬度小於 900px 時 (平板或手機)，切換模式 */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column; /* 改為上下排列 */
+                padding: 10px;
+                gap: 10px;
+            }
+
+            /* 預覽區改到上面 */
+            .preview-area {
+                order: 1; /* 順序 1：最上面 */
+                flex: 0 0 45%; /* 佔據畫面高度的 45% */
+                padding: 10px; /* 縮小內距，讓圖大一點 */
+                margin-bottom: 0;
+            }
+
+            /* 控制區改到下面 */
+            .controls {
+                order: 2; /* 順序 2：下面 */
+                width: 100%; /* 寬度填滿 */
+                min-width: 0;
+                flex: 1; /* 佔據剩下的所有高度 */
+                padding-bottom: 50px;
+            }
+            
+            /* 手機版按鈕稍微加大 */
+            input[type="range"] { height: 20px; }
+            input[type="checkbox"] { width: 25px; height: 25px; }
+        }
+
+        /* === 以下是原本的元件樣式 (保持不變) === */
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        
-        /* 標題與標籤樣式 */
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
         .flex-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .block-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
-        
-        /* 輸入元件樣式 */
         input[type="text"], select, textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
         .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative; flex-shrink: 0; }
         .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
@@ -65,44 +127,12 @@
         input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #0f0; }
         input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
         input[type="number"] { background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; }
-        
         details { background: #222; border: 1px solid #444; border-radius: 5px; padding: 5px; margin-top: 10px; }
         summary { cursor: pointer; color: #ffd700; font-weight: bold; padding: 5px; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; } 
         summary:after { content: " ▼"; font-size: 0.8em; }
         details[open] summary:after { content: " ▲"; }
         .details-content { padding: 10px; border-top: 1px solid #444; margin-top: 5px; }
-
-        /* 2. 右側預覽區塊修正 */
-        .preview-area { 
-            flex: 1; 
-            background: #000; 
-            border-radius: 10px; 
-            padding: 10px; /* 這裡的 Padding 會保護卡片不貼邊 */
-            border: 1px solid #444; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden; 
-            height: 100%; /* 填滿父容器高度 */
-            min-width: 0; 
-        }
-        
-        /* 3. Canvas 修正：回歸使用 %，這會讓它乖乖待在黑色框框內 */
-        canvas { 
-            background: #fff; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.8); 
-            border: 2px solid #333; 
-            
-            /* 改回 100%，這代表「佔滿黑色框框的高度，但絕不超出」 */
-            max-width: 100%; 
-            max-height: 100%; 
-            
-            width: auto; 
-            height: auto; 
-            object-fit: contain; 
-        }
-        
         button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
     </style>
 </head>
@@ -408,7 +438,7 @@
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
-            // 3. 自動填滿目標尺寸更新 (519x469)
+            // 3. 自動填滿目標尺寸更新 (520x470)
             const targetW = 520;
             const targetH = 470;
             const targetCenterX = 325;
@@ -573,4 +603,3 @@
     </script>
 </body>
 </html>
-
