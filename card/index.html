@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>歐米卡牌編輯器 v4.0 (手機電腦通用版)</title>
+    <title>歐米卡牌編輯器 v4.1 (繁體優化+版面修復)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Dela+Gothic+One&family=DotGothic16&family=Hachi+Maru+Pop&family=Kaisei+Tokumin:wght@700&family=Klee+One&family=Ma+Shan+Zheng&family=Mochiy+Pop+P+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Potta+One&family=RocknRoll+One&family=Yusei+Magic&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=DotGothic16&family=Kiwi+Maru:wght@500&family=Klee+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 
     <style>
         /* === 全局設定 === */
@@ -17,8 +18,7 @@
             color: #fff; 
             margin: 0;
             padding: 20px;
-            height: 100vh; /* fallback */
-            height: 100dvh; /* 手機專用動態高度 */
+            height: 100vh; 
             width: 100vw;
             overflow: hidden; 
             box-sizing: border-box; 
@@ -52,11 +52,14 @@
             flex: 1; 
             background: #000; 
             border-radius: 10px; 
+            
+            /* 關鍵修正：這裡的 padding 40px 是讓畫面不頂到上下的關鍵 */
             padding: 40px; 
+            
             border: 1px solid #444; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            align-items: center; /* 垂直置中 */
             overflow: hidden; 
             height: 100%; 
             min-width: 0; 
@@ -76,37 +79,34 @@
         }
 
         /* === 📱 手機版 RWD 響應式設定 === */
-        /* 當螢幕寬度小於 900px 時 (平板或手機)，切換模式 */
         @media (max-width: 900px) {
             body {
                 flex-direction: column; /* 改為上下排列 */
                 padding: 10px;
                 gap: 10px;
+                height: 100dvh; /* 手機專用動態高度 */
             }
 
-            /* 預覽區改到上面 */
             .preview-area {
-                order: 1; /* 順序 1：最上面 */
-                flex: 0 0 45%; /* 佔據畫面高度的 45% */
-                padding: 10px; /* 縮小內距，讓圖大一點 */
+                order: 1; 
+                flex: 0 0 45%; 
+                padding: 10px; /* 手機版不需要那麼大留白，改小一點 */
                 margin-bottom: 0;
             }
 
-            /* 控制區改到下面 */
             .controls {
-                order: 2; /* 順序 2：下面 */
-                width: 100%; /* 寬度填滿 */
+                order: 2; 
+                width: 100%; 
                 min-width: 0;
-                flex: 1; /* 佔據剩下的所有高度 */
+                flex: 1; 
                 padding-bottom: 50px;
             }
             
-            /* 手機版按鈕稍微加大 */
             input[type="range"] { height: 20px; }
             input[type="checkbox"] { width: 25px; height: 25px; }
         }
 
-        /* === 以下是原本的元件樣式 (保持不變) === */
+        /* === 元件樣式 === */
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
@@ -211,35 +211,25 @@
                 
                 <div class="flex-label" style="margin-top:10px;">字體
                     <select id="fontSelect" onchange="drawCard()" style="width:60%">
-                        <optgroup label="經典常用">
+                        <optgroup label="經典繁體 (安全)">
                             <option value="Microsoft JhengHei">微軟正黑體</option>
                             <option value="DFKai-SB, BiaoKai">標楷體</option>
-                            <option value="'Noto Sans TC'">思源黑體 (標準)</option>
-                            <option value="'Noto Serif TC'">思源宋體 (標準)</option>
+                            <option value="'Noto Sans TC'">思源黑體</option>
+                            <option value="'Noto Serif TC'">思源宋體</option>
                         </optgroup>
                         
-                        <optgroup label="✨ 新增：特色中文/漢字">
-                            <option value="'Dela Gothic One'">極粗哥特 (魄力標題)</option>
-                            <option value="'Kaisei Tokumin'">特克明朝 (奇幻鋒利)</option>
-                            <option value="'Potta One'">日系濃筆 (毛筆感)</option>
-                            <option value="'Mochiy Pop P One'">圓潤POP (可愛)</option>
-                            <option value="'Zhi Mang Xing'">芝莽行書 (狂野)</option>
-                            <option value="'Ma Shan Zheng'">馬善政毛筆</option>
-                        </optgroup>
-
-                        <optgroup label="手寫/可愛風格">
-                            <option value="'Klee One'">克利體 (硬筆手寫)</option>
-                            <option value="'Yusei Magic'">油性筆體</option>
-                            <option value="'Hachi Maru Pop'">波波體</option>
-                            <option value="'RocknRoll One'">搖滾體</option>
+                        <optgroup label="特色繁體/高支援">
+                            <option value="'Zen Maru Gothic'">圓體 (Zen Maru)</option>
+                            <option value="'Kiwi Maru'">奇異丸 (手寫感)</option>
+                            <option value="'Klee One'">克利體 (硬筆字)</option>
                             <option value="'DotGothic16'">點陣像素 (復古)</option>
                         </optgroup>
 
-                        <optgroup label="🌎 特殊語言風格 (英/韓)">
-                            <option value="'Cinzel'">Cinzel (歐風羅馬石刻)</option>
-                            <option value="'Orbitron'">Orbitron (科幻數字)</option>
-                            <option value="'Creepster'">Creepster (恐怖驚悚)</option>
-                            <option value="'Black And White Picture'">Black&White (韓系粗刷)</option>
+                        <optgroup label="英/韓 特殊風格">
+                            <option value="'Cinzel'">Cinzel (歐風羅馬)</option>
+                            <option value="'Orbitron'">Orbitron (科幻)</option>
+                            <option value="'Creepster'">Creepster (恐怖)</option>
+                            <option value="'Black And White Picture'">Black&White (韓系)</option>
                         </optgroup>
                     </select>
                 </div>
@@ -438,7 +428,6 @@
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
-            // 3. 自動填滿目標尺寸更新 (520x470)
             const targetW = 520;
             const targetH = 470;
             const targetCenterX = 325;
@@ -509,13 +498,10 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 繪製主角照片 (Clipping Mask - 修正尺寸 520x470)
+            // 繪製主角照片 (Clipping Mask - 520x470)
             if (assets.user.loaded) {
                 ctx.save();
                 ctx.beginPath();
-                // 座標精算：中心(325, 354)，寬520，高470
-                // X = 325 - 260 = 65
-                // Y = 354 - 235 = 119
                 ctx.rect(65, 119, 520, 470); 
                 ctx.clip(); 
 
