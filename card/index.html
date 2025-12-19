@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>歐米卡牌編輯器 v4.1 (繁體優化+版面修復)</title>
+    <title>歐米卡牌編輯器</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=DotGothic16&family=Kiwi+Maru:wght@500&family=Klee+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 
     <style>
-        /* === 全局設定 === */
+        /* 1. 關鍵修正：全域盒模型設定，確保 Padding 不會把元素撐大 */
+        * { box-sizing: border-box; }
+
         body { 
             font-family: "Microsoft JhengHei", "FangSong", sans-serif; 
             background: #1a1a1a; 
@@ -19,17 +22,17 @@
             margin: 0;
             padding: 20px;
             height: 100vh; 
+            height: 100dvh; /* 手機版動態高度 */
             width: 100vw;
             overflow: hidden; 
-            box-sizing: border-box; 
             
-            /* 預設：電腦版 (左右佈局) */
+            /* 電腦版左右佈局 */
             display: flex; 
             flex-direction: row; 
             gap: 20px; 
         }
 
-        /* === 左側控制區 (電腦) === */
+        /* 左側控制區 */
         .controls { 
             background: #2d2d2d; 
             padding: 20px; 
@@ -47,57 +50,59 @@
             z-index: 2;
         }
         
-        /* === 右側預覽區 (電腦) === */
+        /* 右側預覽區 */
         .preview-area { 
             flex: 1; 
             background: #000; 
             border-radius: 10px; 
-            
-            /* 關鍵修正：這裡的 padding 40px 是讓畫面不頂到上下的關鍵 */
-            padding: 40px; 
-            
+            padding: 20px; /* 這裡的 padding 加上 canvas 的 max-height 共同作用 */
             border: 1px solid #444; 
             display: flex; 
             justify-content: center; 
-            align-items: center; /* 垂直置中 */
+            align-items: center; 
             overflow: hidden; 
             height: 100%; 
             min-width: 0; 
             position: relative;
         }
 
-        /* === Canvas 設定 === */
+        /* 2. Canvas 修正：強制最大高度為視窗的 85% */
+        /* 這能保證不管父容器 padding 是多少，卡片永遠留有 15% 的呼吸空間 */
         canvas { 
             background: #fff; 
             box-shadow: 0 0 30px rgba(0,0,0,0.8); 
             border: 2px solid #333; 
+            
             max-width: 100%; 
-            max-height: 100%; 
+            max-height: 85vh; /* 👑 這裡改回 vh，解決頂到頭的問題 */
+            
             width: auto; 
             height: auto; 
             object-fit: contain; 
         }
 
-        /* === 📱 手機版 RWD 響應式設定 === */
+        /* 手機版 RWD */
         @media (max-width: 900px) {
             body {
-                flex-direction: column; /* 改為上下排列 */
+                flex-direction: column; 
                 padding: 10px;
                 gap: 10px;
-                height: 100dvh; /* 手機專用動態高度 */
             }
 
             .preview-area {
                 order: 1; 
                 flex: 0 0 45%; 
-                padding: 10px; /* 手機版不需要那麼大留白，改小一點 */
                 margin-bottom: 0;
+            }
+            
+            /* 手機版可以稍微讓圖大一點 */
+            .preview-area canvas {
+                max-height: 100%; 
             }
 
             .controls {
                 order: 2; 
                 width: 100%; 
-                min-width: 0;
                 flex: 1; 
                 padding-bottom: 50px;
             }
@@ -106,10 +111,12 @@
             input[type="checkbox"] { width: 25px; height: 25px; }
         }
 
-        /* === 元件樣式 === */
+        /* 卷軸美化 */
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        
+        /* 一般元件樣式 */
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
@@ -211,24 +218,23 @@
                 
                 <div class="flex-label" style="margin-top:10px;">字體
                     <select id="fontSelect" onchange="drawCard()" style="width:60%">
-                        <optgroup label="經典繁體 (安全)">
+                        <optgroup label="系統字體 (最穩定)">
                             <option value="Microsoft JhengHei">微軟正黑體</option>
                             <option value="DFKai-SB, BiaoKai">標楷體</option>
-                            <option value="'Noto Sans TC'">思源黑體</option>
-                            <option value="'Noto Serif TC'">思源宋體</option>
+                            <option value="PMingLiU, MingLiU">新細明體</option>
                         </optgroup>
                         
-                        <optgroup label="特色繁體/高支援">
-                            <option value="'Zen Maru Gothic'">圓體 (Zen Maru)</option>
-                            <option value="'Kiwi Maru'">奇異丸 (手寫感)</option>
-                            <option value="'Klee One'">克利體 (硬筆字)</option>
-                            <option value="'DotGothic16'">點陣像素 (復古)</option>
+                        <optgroup label="Google Noto 繁體 (推薦)">
+                            <option value="'Noto Sans TC'">思源黑體 (標準)</option>
+                            <option value="'Noto Sans TC', sans-serif; font-weight: 900;">思源黑體 (超粗)</option>
+                            <option value="'Noto Serif TC'">思源宋體 (標準)</option>
+                            <option value="'Noto Serif TC', serif; font-weight: 900;">思源宋體 (超粗)</option>
                         </optgroup>
 
-                        <optgroup label="英/韓 特殊風格">
+                        <optgroup label="英數專用風格 (不支援中文)">
                             <option value="'Cinzel'">Cinzel (歐風羅馬)</option>
-                            <option value="'Orbitron'">Orbitron (科幻)</option>
-                            <option value="'Creepster'">Creepster (恐怖)</option>
+                            <option value="'Orbitron'">Orbitron (科幻數字)</option>
+                            <option value="'Creepster'">Creepster (恐怖驚悚)</option>
                             <option value="'Black And White Picture'">Black&White (韓系)</option>
                         </optgroup>
                     </select>
@@ -428,8 +434,10 @@
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
-            const targetW = 520;
-            const targetH = 470;
+            
+            // 3. 自動填滿目標尺寸更新 (519x469)
+            const targetW = 519;
+            const targetH = 469;
             const targetCenterX = 325;
             const targetCenterY = 354;
 
@@ -498,11 +506,12 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 繪製主角照片 (Clipping Mask - 520x470)
+            // 繪製主角照片 (Clipping Mask - 519x469)
             if (assets.user.loaded) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.rect(65, 119, 520, 470); 
+                // 座標精算：X 65.5, Y 119.5, W 519, H 469
+                ctx.rect(65.5, 119.5, 519, 469); 
                 ctx.clip(); 
 
                 const w = assets.user.img.width * userScale; 
