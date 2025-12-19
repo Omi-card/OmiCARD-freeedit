@@ -3,24 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歐米卡牌編輯器 v2.4 (修復版)</title>
+    <title>歐米卡牌編輯器 v2.5 (完美視窗版)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Dela+Gothic+One&family=DotGothic16&family=Hachi+Maru+Pop&family=Kaisei+Tokumin:wght@700&family=Klee+One&family=Ma+Shan+Zheng&family=Mochiy+Pop+P+One&family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&family=Orbitron:wght@700&family=Potta+One&family=RocknRoll+One&family=Yusei+Magic&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: "Microsoft JhengHei", "FangSong", sans-serif; background: #1a1a1a; color: #fff; display: flex; gap: 20px; padding: 20px; height: 100vh; overflow: hidden; box-sizing: border-box; }
-        .controls { background: #2d2d2d; padding: 20px; padding-bottom: 150px; border-radius: 10px; width: 400px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; height: 100%; box-shadow: 2px 0 10px rgba(0,0,0,0.5); flex-shrink: 0; }
+        /* 佈局修正：確保 body 佔滿螢幕且不溢出 */
+        body { 
+            font-family: "Microsoft JhengHei", "FangSong", sans-serif; 
+            background: #1a1a1a; 
+            color: #fff; 
+            display: flex; 
+            gap: 20px; 
+            padding: 20px; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+            box-sizing: border-box; 
+            margin: 0;
+        }
+
+        /* 左側控制區 */
+        .controls { 
+            background: #2d2d2d; 
+            padding: 20px; 
+            padding-bottom: 100px; /* 預留底部空間 */
+            border-radius: 10px; 
+            width: 400px; 
+            min-width: 350px; /* 防止過度壓縮 */
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            overflow-y: auto; 
+            height: 100%; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5); 
+            flex-shrink: 0; 
+        }
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        .controls::-webkit-scrollbar-thumb:hover { background: #777; }
+        
+        /* 標題與標籤樣式 */
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
         .flex-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .block-label { color: #ccc; font-size: 0.9em; font-weight: bold; display: block; margin-top: 10px; margin-bottom: 4px; }
+        
+        /* 輸入元件樣式 */
         input[type="text"], select, textarea { width: 100%; padding: 8px; background: #111; border: 1px solid #444; color: #fff; border-radius: 4px; box-sizing: border-box; font-size: 1em; }
         .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative; flex-shrink: 0; }
         .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
@@ -31,26 +63,39 @@
         .color-row { display: flex; align-items: center; gap: 10px; background: #222; padding: 8px; border-radius: 5px; margin-top: 0; }
         input[type="color"] { border: none; width: 40px; height: 30px; cursor: pointer; background: none; padding: 0; }
         input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: #0f0; }
+        input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
+        input[type="number"] { background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; }
+        
+        /* 摺疊選單 */
         details { background: #222; border: 1px solid #444; border-radius: 5px; padding: 5px; margin-top: 10px; }
         summary { cursor: pointer; color: #ffd700; font-weight: bold; padding: 5px; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; } 
         summary:after { content: " ▼"; font-size: 0.8em; }
         details[open] summary:after { content: " ▲"; }
         .details-content { padding: 10px; border-top: 1px solid #444; margin-top: 5px; }
-        input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
-        input[type="number"] { background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; }
-        input[type="number"]:focus { border-color: #0f0; outline: none; }
+
+        /* 右側預覽區塊修正 */
+        .preview-area { 
+            flex: 1; 
+            background: #000; 
+            border-radius: 10px; 
+            padding: 10px; 
+            border: 1px solid #444; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; /* 垂直居中 */
+            overflow: hidden; 
+            height: 100%;
+            min-width: 0; /* 防止 Flex 子元素溢出 */
+        }
         
-        /* 預覽區塊設定 */
-        .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; position: relative; height: 100%; }
-        
-        /* Canvas 修正：使用 max-width/height 讓它自動適應容器，不強制拉伸 */
+        /* Canvas 修正：限制最大高度為視窗高度的 90%，確保不被切邊 */
         canvas { 
             background: #fff; 
             box-shadow: 0 0 30px rgba(0,0,0,0.8); 
             border: 2px solid #333; 
-            max-width: 95%; 
-            max-height: 95%; 
+            max-width: 100%; 
+            max-height: 95%; /* 關鍵：確保不超過容器高度 */
             width: auto; 
             height: auto; 
             object-fit: contain; 
@@ -343,8 +388,6 @@
             });
         }
 
-        // document.fonts.ready.then(function () { drawCard(); }); // Remove this to avoid early calls
-
         document.getElementById('uploadUserImg').addEventListener('change', (e) => {
             const f = e.target.files[0];
             if (!f) return;
@@ -363,8 +406,9 @@
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
-            const targetW = 515;
-            const targetH = 465;
+            // 更新自動填滿的目標尺寸 (對應裁切大小)
+            const targetW = 518;
+            const targetH = 468;
             const targetCenterX = 325;
             const targetCenterY = 354;
 
@@ -411,7 +455,6 @@
         }
 
         function drawCard() {
-            console.log("Drawing card..."); // Debug
             ctx.clearRect(0, 0, CW, CH);
             ctx.fillStyle = document.getElementById('paperColor').value; 
             ctx.fillRect(0, 0, CW, CH);
@@ -434,11 +477,14 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 繪製主角照片 (Clipping Mask - 微調尺寸 515x465)
+            // 繪製主角照片 (Clipping Mask - 修正尺寸 518x468)
             if (assets.user.loaded) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.rect(67.5, 121.5, 515, 465); 
+                // 修正座標：中心(325, 354)，寬518，高468
+                // X = 325 - 259 = 66
+                // Y = 354 - 234 = 120
+                ctx.rect(66, 120, 518, 468); 
                 ctx.clip(); 
 
                 const w = assets.user.img.width * userScale; 
