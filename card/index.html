@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>歐米卡牌編輯器</title>
+    <title>歐米卡牌編輯器 v4.4 (支援自訂字型上傳)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+And+White+Picture&family=Cinzel:wght@700&family=Creepster&family=DotGothic16&family=Kiwi+Maru:wght@500&family=Klee+One&family=Orbitron:wght@700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Hachi+Maru+Pop&family=Potta+One&family=RocknRoll+One&family=Yusei+Magic&display=swap" rel="stylesheet">
 
     <style>
-        /* 1. 關鍵修正：全域盒模型設定，確保 Padding 不會把元素撐大 */
         * { box-sizing: border-box; }
 
         body { 
@@ -22,17 +22,14 @@
             margin: 0;
             padding: 20px;
             height: 100vh; 
-            height: 100dvh; /* 手機版動態高度 */
+            height: 100dvh; 
             width: 100vw;
             overflow: hidden; 
-            
-            /* 電腦版左右佈局 */
             display: flex; 
             flex-direction: row; 
             gap: 20px; 
         }
 
-        /* 左側控制區 */
         .controls { 
             background: #2d2d2d; 
             padding: 20px; 
@@ -50,12 +47,11 @@
             z-index: 2;
         }
         
-        /* 右側預覽區 */
         .preview-area { 
             flex: 1; 
             background: #000; 
             border-radius: 10px; 
-            padding: 20px; /* 這裡的 padding 加上 canvas 的 max-height 共同作用 */
+            padding: 20px; 
             border: 1px solid #444; 
             display: flex; 
             justify-content: center; 
@@ -66,57 +62,45 @@
             position: relative;
         }
 
-        /* 2. Canvas 修正：強制最大高度為視窗的 85% */
-        /* 這能保證不管父容器 padding 是多少，卡片永遠留有 15% 的呼吸空間 */
         canvas { 
             background: #fff; 
             box-shadow: 0 0 30px rgba(0,0,0,0.8); 
             border: 2px solid #333; 
-            
             max-width: 100%; 
-            max-height: 85vh; /* 👑 這裡改回 vh，解決頂到頭的問題 */
-            
+            max-height: 85vh; /* 確保不切邊 */
             width: auto; 
             height: auto; 
             object-fit: contain; 
         }
 
-        /* 手機版 RWD */
         @media (max-width: 900px) {
             body {
                 flex-direction: column; 
                 padding: 10px;
                 gap: 10px;
             }
-
             .preview-area {
                 order: 1; 
                 flex: 0 0 45%; 
                 margin-bottom: 0;
             }
-            
-            /* 手機版可以稍微讓圖大一點 */
             .preview-area canvas {
                 max-height: 100%; 
             }
-
             .controls {
                 order: 2; 
                 width: 100%; 
                 flex: 1; 
                 padding-bottom: 50px;
             }
-            
             input[type="range"] { height: 20px; }
             input[type="checkbox"] { width: 25px; height: 25px; }
         }
 
-        /* 卷軸美化 */
         .controls::-webkit-scrollbar { width: 8px; }
         .controls::-webkit-scrollbar-track { background: #222; border-radius: 4px; }
         .controls::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         
-        /* 一般元件樣式 */
         h3 { border-bottom: 2px solid #5E2C96; padding-bottom: 5px; margin: 0 0 10px 0; color: #ffd700; font-size: 1.1em; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
         .status-badge { font-size: 0.7em; background: #333; padding: 2px 6px; border-radius: 4px; color: #555; border: 1px solid #555; }
         .status-badge.ready { color: #0f0; border-color: #0f0; background: #224422; }
@@ -126,8 +110,20 @@
         .layer-card { background: #3a3a3a; border-radius: 8px; border-left: 5px solid #555; overflow: hidden; position: relative; flex-shrink: 0; }
         .layer-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #333; }
         .layer-body { padding: 10px; }
-        .file-upload-label { display: inline-block; padding: 10px; background: #442222; color: #ffaaaa; border-radius: 4px; cursor: pointer; font-size: 0.9em; width: 100%; text-align: center; border: 1px solid #884444; box-sizing: border-box;}
-        .file-upload-label:hover { background: #553333; color: #fff; }
+        
+        /* 上傳按鈕樣式優化 */
+        .file-upload-label { 
+            display: inline-block; padding: 12px; 
+            background: #442222; color: #ffaaaa; 
+            border-radius: 4px; cursor: pointer; 
+            font-size: 0.95em; width: 100%; 
+            text-align: center; border: 1px solid #884444; 
+            box-sizing: border-box; transition: 0.2s;
+        }
+        .file-upload-label:hover { background: #553333; color: #fff; border-color: #ff5555; }
+        .file-upload-label.font-upload { background: #223344; color: #aaddff; border-color: #446688; margin-bottom: 10px;}
+        .file-upload-label.font-upload:hover { background: #334455; color: #fff; border-color: #6699cc; }
+
         input[type="file"] { display: none; }
         .color-row { display: flex; align-items: center; gap: 10px; background: #222; padding: 8px; border-radius: 5px; margin-top: 0; }
         input[type="color"] { border: none; width: 40px; height: 30px; cursor: pointer; background: none; padding: 0; }
@@ -216,29 +212,47 @@
                     <input type="file" id="uploadUserImg" accept="image/*">
                 </label>
                 
-                <div class="flex-label" style="margin-top:10px;">字體
-                    <select id="fontSelect" onchange="drawCard()" style="width:60%">
-                        <optgroup label="系統字體 (最穩定)">
-                            <option value="Microsoft JhengHei">微軟正黑體</option>
-                            <option value="DFKai-SB, BiaoKai">標楷體</option>
-                            <option value="PMingLiU, MingLiU">新細明體</option>
-                        </optgroup>
-                        
-                        <optgroup label="Google Noto 繁體 (推薦)">
-                            <option value="'Noto Sans TC'">思源黑體 (標準)</option>
-                            <option value="'Noto Sans TC', sans-serif; font-weight: 900;">思源黑體 (超粗)</option>
-                            <option value="'Noto Serif TC'">思源宋體 (標準)</option>
-                            <option value="'Noto Serif TC', serif; font-weight: 900;">思源宋體 (超粗)</option>
-                        </optgroup>
+                <div class="flex-label" style="margin-top:10px;">字體</div>
+                
+                <label class="file-upload-label font-upload">
+                    🔤 上傳字型檔 (.ttf / .otf)
+                    <input type="file" id="uploadFontFile" accept=".ttf,.otf,.woff,.woff2">
+                </label>
 
-                        <optgroup label="英數專用風格 (不支援中文)">
-                            <option value="'Cinzel'">Cinzel (歐風羅馬)</option>
-                            <option value="'Orbitron'">Orbitron (科幻數字)</option>
-                            <option value="'Creepster'">Creepster (恐怖驚悚)</option>
-                            <option value="'Black And White Picture'">Black&White (韓系)</option>
-                        </optgroup>
-                    </select>
-                </div>
+                <select id="fontSelect" onchange="drawCard()" style="width:100%">
+                    <optgroup label="📂 自訂 / 上傳字型" id="customFontGroup" style="display:none;"></optgroup>
+
+                    <optgroup label="經典繁體 (安全穩定)">
+                        <option value="Microsoft JhengHei">微軟正黑體</option>
+                        <option value="DFKai-SB, BiaoKai">標楷體</option>
+                        <option value="'Noto Sans TC'">思源黑體 (標準)</option>
+                        <option value="'Noto Sans TC', sans-serif; font-weight: 900;">思源黑體 (超粗)</option>
+                        <option value="'Noto Serif TC'">思源宋體 (標準)</option>
+                        <option value="'Noto Serif TC', serif; font-weight: 900;">思源宋體 (超粗)</option>
+                    </optgroup>
+                    
+                    <optgroup label="特色繁體 (圓體/手寫/點陣)">
+                        <option value="'Zen Maru Gothic'">圓體 (Zen Maru)</option>
+                        <option value="'Kiwi Maru'">奇異丸 (Kiwi Maru)</option>
+                        <option value="'Klee One'">克利體 (硬筆字)</option>
+                        <option value="'DotGothic16'">點陣像素 (復古)</option>
+                    </optgroup>
+
+                    <optgroup label="日系漢字 (繁體可能缺字)">
+                        <option value="'Dela Gothic One'">極粗哥特 (Dela Gothic)</option>
+                        <option value="'Potta One'">日系濃筆 (Potta)</option>
+                        <option value="'RocknRoll One'">搖滾體 (RocknRoll)</option>
+                        <option value="'Hachi Maru Pop'">波波體 (Hachi Maru)</option>
+                        <option value="'Yusei Magic'">油性筆 (Yusei)</option>
+                    </optgroup>
+
+                    <optgroup label="英數專用風格">
+                        <option value="'Cinzel'">Cinzel (歐風羅馬)</option>
+                        <option value="'Orbitron'">Orbitron (科幻數字)</option>
+                        <option value="'Creepster'">Creepster (恐怖驚悚)</option>
+                        <option value="'Black And White Picture'">Black&White (韓系)</option>
+                    </optgroup>
+                </select>
                 
                 <div class="flex-label" style="margin-top:5px; background:#222; padding:5px; border-radius:4px;">
                     <div style="display:flex; gap:10px; align-items:center;">
@@ -416,6 +430,9 @@
             });
         }
 
+        // ==========================================
+        //  新增功能：上傳圖片邏輯
+        // ==========================================
         document.getElementById('uploadUserImg').addEventListener('change', (e) => {
             const f = e.target.files[0];
             if (!f) return;
@@ -430,14 +447,65 @@
             reader.readAsDataURL(f);
         });
 
+        // ==========================================
+        //  🔥🔥🔥 新增功能：上傳字體邏輯 🔥🔥🔥
+        // ==========================================
+        document.getElementById('uploadFontFile').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 1. 產生一個唯一的字體名稱 (例如 "CustomFont_12345")
+            const fontName = `CustomFont_${Date.now()}`;
+            const statusBadge = document.getElementById('globalStatus');
+            statusBadge.textContent = "字型載入中...";
+
+            try {
+                // 2. 讀取檔案並建立 FontFace 物件
+                const buffer = await file.arrayBuffer();
+                const font = new FontFace(fontName, buffer);
+                
+                // 3. 等待載入完成
+                await font.load();
+                
+                // 4. 加入到文件的字體庫
+                document.fonts.add(font);
+                
+                // 5. 將新字體加入下拉選單
+                const select = document.getElementById('fontSelect');
+                const group = document.getElementById('customFontGroup');
+                
+                // 顯示群組
+                group.style.display = ""; 
+                
+                const option = document.createElement('option');
+                option.value = fontName;
+                option.textContent = `📝 ${file.name.split('.')[0]} (自訂)`;
+                option.selected = true; // 自動選取
+                
+                // 插入到群組的最前面
+                if(group.firstChild) {
+                    group.insertBefore(option, group.firstChild);
+                } else {
+                    group.appendChild(option);
+                }
+
+                statusBadge.textContent = "字型載入成功！";
+                drawCard(); // 立即重繪
+
+            } catch (err) {
+                console.error(err);
+                alert("字型載入失敗，請確認檔案格式是否正確 (.ttf / .otf)");
+                statusBadge.textContent = "系統就緒";
+            }
+        });
+
         function autoFitUserImage() {
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
             
-            // 3. 自動填滿目標尺寸更新 (519x469)
-            const targetW = 519;
-            const targetH = 469;
+            const targetW = 520;
+            const targetH = 470;
             const targetCenterX = 325;
             const targetCenterY = 354;
 
@@ -506,11 +574,10 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // 繪製主角照片 (Clipping Mask - 519x469)
+            // 繪製主角照片 (Clipping Mask - 519x469 修正版)
             if (assets.user.loaded) {
                 ctx.save();
                 ctx.beginPath();
-                // 座標精算：X 65.5, Y 119.5, W 519, H 469
                 ctx.rect(65.5, 119.5, 519, 469); 
                 ctx.clip(); 
 
