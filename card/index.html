@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歐米卡牌編輯器 v2.1 (裁切修正版)</title>
+    <title>歐米卡牌編輯器 v2.3 (裁切微調版)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,8 +40,8 @@
         input[type="range"] { width: 100%; cursor: pointer; margin: 5px 0 10px 0; accent-color: #5E2C96; }
         input[type="number"] { background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; width: 60px; padding: 4px; text-align: right; font-family: monospace; }
         input[type="number"]:focus { border-color: #0f0; outline: none; }
-        .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; }
-        canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; height: 90%; width: auto; object-fit: contain; }
+        .preview-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; border-radius: 10px; padding: 20px; border: 1px solid #444; overflow: hidden; position: relative; }
+        canvas { background: #fff; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; max-width: 95%; max-height: 95%; width: auto; height: auto; object-fit: contain; }
         button { background: #5E2C96; color: #fff; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; font-weight: bold; width: 100%; transition: 0.2s; margin-top: 10px;}
     </style>
 </head>
@@ -269,7 +269,6 @@
     </div>
 
     <script>
-        // 設定區
         const effectList = [
             { name: "無特效", file: "effect_none.png" },
             { name: "特效 1", file: "effect_1.png" },
@@ -346,13 +345,13 @@
             reader.readAsDataURL(f);
         });
 
-        // 智慧畫框填滿邏輯
         function autoFitUserImage() {
             if(!assets.user.loaded) return;
             const imgW = assets.user.img.width;
             const imgH = assets.user.img.height;
-            const targetW = 510;
-            const targetH = 460;
+            // 更新自動填滿的目標尺寸
+            const targetW = 515;
+            const targetH = 465;
             const targetCenterX = 325;
             const targetCenterY = 354;
 
@@ -421,27 +420,23 @@
 
             const fontSpacing = document.getElementById('fontSpacing').value;
 
-            // --- 繪製主角照片 (新增 Clipping 剪裁功能) ---
+            // 繪製主角照片 (Clipping Mask - 微調尺寸 515x465)
             if (assets.user.loaded) {
                 ctx.save();
-                // 定義剪裁路徑 (中間的白框區域)
-                // 左上X = 325 - 255 = 70
-                // 左上Y = 354 - 230 = 124
                 ctx.beginPath();
-                ctx.rect(70, 124, 510, 460); 
-                ctx.clip(); // 啟動剪裁，超出範圍的圖片不顯示
+                // 更新裁切區域座標與大小
+                ctx.rect(67.5, 121.5, 515, 465); 
+                ctx.clip(); 
 
                 const w = assets.user.img.width * userScale; 
                 const h = assets.user.img.height * userScale;
                 ctx.drawImage(assets.user.img, userX - w/2, userY - h/2, w, h);
                 
-                ctx.restore(); // 解除剪裁，以免影響後面
+                ctx.restore(); 
             } else {
                 ctx.fillStyle = "#333"; ctx.font = "20px sans-serif"; ctx.textAlign = "center"; 
-                // 調整文字位置到框框中心
                 ctx.fillText("請上傳主角照片", CW/2, 354);
             }
-            // ------------------------------------------
 
             if (assets.mask.loaded) drawTintedImage(ctx, assets.mask.img, document.getElementById('tintColorB').value, document.getElementById('tintEnableB').checked);
             if (assets.texture.loaded) drawTintedImage(ctx, assets.texture.img, document.getElementById('tintColorC').value, document.getElementById('tintEnableC').checked);
@@ -494,10 +489,7 @@
             ctx.textAlign = "left";
             ctx.textBaseline = "top";
             ctx.font = `${fontStyle} 26px ${fontChoice}, "Microsoft JhengHei", sans-serif`;
-            wrapText(ctx, desc, dx, dy, dw, 38);
-        }
-
-        function wrapText(ctx, text, x, y, maxW, lineH) {
+            wrapText(ctx, text, x, y, maxW, lineH) {
             let words = text.split(''); let line = '';
             for (let n = 0; n < words.length; n++) {
                 let testLine = line + words[n];
